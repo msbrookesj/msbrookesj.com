@@ -17,6 +17,18 @@ body {
   width: auto;
 }
 
+footer {
+  position: relative;
+}
+
+.footer-copyright {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+}
+
 .social-icon {
   transition: color 0.2s ease;
 }
