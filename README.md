@@ -1,2 +1,2 @@
 To publish...
-/Volumes/Source/google-cloud-sdk/bin/gsutil rsync -r -x "^\.git/" ./ gs://b1ryan.com/
+/Volumes/Source/google-cloud-sdk/bin/gsutil rsync -r -d -x "^\.git/|^README\.md$" ./ gs://b1ryan.com/
