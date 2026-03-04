@@ -18,15 +18,34 @@ body {
 }
 
 footer {
-  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.footer-left {
+  flex: 1;
 }
 
 .footer-copyright {
-  position: absolute;
-  left: 0;
-  right: 0;
+  flex: 1;
   text-align: center;
-  pointer-events: none;
+}
+
+.footer-right {
+  flex: 1;
+  text-align: right;
+}
+
+@media (max-width: 767px) {
+  footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .footer-left { order: 2; flex: none; }
+  .footer-copyright { order: 1; flex: none; }
+  .footer-right { order: 3; flex: none; text-align: center; }
 }
 
 .social-icon {
