@@ -25,6 +25,9 @@ footer {
 
 .footer-left {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .footer-copyright {
@@ -46,6 +49,18 @@ footer {
   .footer-left { order: 2; flex: none; }
   .footer-copyright { order: 1; flex: none; }
   .footer-right { order: 3; flex: none; text-align: center; }
+}
+
+.page-image {
+  text-align: center;
+}
+
+.page-image img {
+  margin: 20px;
+}
+
+.section-card {
+  text-align: center;
 }
 
 .social-icon {
