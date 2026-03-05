@@ -76,7 +76,7 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 
 ## CSS Conventions
 
-- `bootstrap-css/theme.css` — The only place for custom styles. Contains footer flexbox layout and social icon `:hover` color rules.
+- `bootstrap-css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, and `.section-card` for centered index cards.
 - `bootstrap-css/jumbotron.css` — Minimal padding overrides only.
 - **No inline styles** beyond what Bootstrap already uses.
 - **Do not** add `<style>` blocks inside HTML files; put custom CSS in `theme.css`.
