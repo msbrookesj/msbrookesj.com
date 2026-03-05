@@ -3,6 +3,8 @@
   "rules": {
     "void-style": ["error", { "style": "selfclose" }],
     "no-trailing-whitespace": "off",
-    "require-sri": "off"
+    "require-sri": "off",
+    "no-conditional-comment": "off",
+    "prefer-native-element": "off"
   }
 }

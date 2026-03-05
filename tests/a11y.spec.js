@@ -12,7 +12,8 @@ const pages = [
 
 for (const { name, path } of pages) {
   test(`${name} page has no WCAG 2.1 AA violations`, async ({ page }) => {
-    await page.goto(path);
+    // domcontentloaded avoids waiting on third-party iframes (e.g. YouTube on office.html)
+    await page.goto(path, { waitUntil: 'domcontentloaded' });
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
       .analyze();

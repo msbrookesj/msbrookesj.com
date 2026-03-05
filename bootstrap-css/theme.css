@@ -55,7 +55,7 @@ footer {
   font-size: 9px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #aaa;
+  color: #767676;
   line-height: 1;
 }
 
@@ -86,6 +86,21 @@ footer {
 
 .section-card {
   text-align: center;
+}
+
+.td-middle {
+  vertical-align: middle;
+}
+
+/* Underline inline links so they're distinguishable without relying on color alone (WCAG 1.4.1) */
+p a, li a {
+  text-decoration: underline;
+}
+
+/* Jumbotron has a #eeeeee background; Bootstrap's default link #337ab7 gives only 3.92:1 contrast there.
+   Override to a darker shade that meets 4.5:1 on #eeeeee. */
+.jumbotron a {
+  color: #1a5276;
 }
 
 .social-icon {
