@@ -6,7 +6,7 @@ This file provides context for AI assistants (Claude Code and others) working in
 
 ## Project Overview
 
-A personal portfolio website for msbrookesj (Matthew Brookes), hosted as a static site on Google Cloud Storage. There is no build step, no package manager, and no backend — only HTML, CSS, images, and vendored JavaScript/CSS libraries.
+A personal portfolio website for msbrookesj (Brooke Ryan), hosted as a static site on Google Cloud Storage. There is no build step, no package manager, and no backend — only HTML, CSS, images, and vendored JavaScript/CSS libraries.
 
 ---
 
@@ -23,7 +23,7 @@ msbrookesj.com/
 │
 ├── bootstrap-3.3.5-dist/   # Bootstrap 3.3.5 framework (CSS + JS, vendored)
 ├── bootstrap-css/          # Custom Bootstrap overrides
-│   ├── theme.css           # Footer layout, social icon hover colors
+│   ├── theme.css           # Footer layout, social icon hover colors, .page-image, .section-card
 │   └── jumbotron.css       # Basic jumbotron padding
 ├── bootstrap-dep/          # Bootstrap JS dependencies
 │   ├── jquery.min.js       # jQuery (minified)
@@ -65,7 +65,7 @@ There are no Node.js packages, no `package.json`, no Sass/Less, no TypeScript, n
 
 Every HTML page follows the same structural pattern:
 
-1. **`<head>`** — Bootstrap CSS, Font Awesome, viewport meta tag, page title.
+1. **`<head>`** — `bootstrap.min.css`, `bootstrap-theme.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title. `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages.
 2. **Fixed top navbar** — Links to About, Professional, Academic, Athlete. Active page highlighted with `class="active"`.
 3. **Main content** — Typically two Bootstrap columns: `col-md-8` (text) and `col-md-4` (image).
 4. **Footer** — Flexbox layout; copyright on the left, social media icons on the right (LinkedIn, Instagram, Facebook, YouTube, GitHub).
