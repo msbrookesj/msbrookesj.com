@@ -115,7 +115,7 @@ This is a two-step process:
 1. `rsync` — syncs all files and deletes remote files not present locally
 2. `cp -z` — re-uploads HTML/CSS/JS with `Content-Encoding: gzip` so GCS serves them compressed to browsers
 
-`gsutil cp` does not support `-x`, so step 2 uses explicit paths to avoid uploading excluded files.
+`gsutil cp` does not support `-x`. Step 2 uses **explicit paths** (never `./`) specifically to prevent excluded files (`.git/`, `CLAUDE.md`, etc.) from being uploaded. Do not change the `cp` commands to use `./` as the source.
 
 Key flags:
 - `-m` — parallel (multi-threaded) transfers
@@ -144,6 +144,7 @@ Key flags:
 - **Do not** add inline `<script>` or `<style>` blocks to HTML pages.
 - **Do not** push directly to `main`/`master` without a feature branch.
 - **Do not** run `gsutil rsync -d` without verifying the local state matches intent — the `-d` flag deletes remote files.
+- **Do not** run `gsutil cp -r ./` (with `./` as the source) without explicit exclusions — it will upload `.git/`, `CLAUDE.md`, and other excluded files to the public bucket. Always use the documented deploy script, which uses explicit paths in the `cp` steps for this reason.
 
 ---
 
