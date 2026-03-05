@@ -106,15 +106,13 @@ Each page sets its own nav item as active. When adding a new page or editing the
 Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 
 ```bash
-gsutil rsync -r -d -x "^\.git/|^README\.md$|^\.claude/" ./ gs://b1ryan.com/
+gsutil rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/" ./ gs://b1ryan.com/
 ```
 
 Key flags:
 - `-r` — recursive
 - `-d` — delete remote files not present locally (destructive — double-check before running)
-- `-x` — excludes `.git/`, `README.md`, and `.claude/` from the upload
-
-> **Note:** `CLAUDE.md` is not excluded, so it will be uploaded to the bucket. If that is undesirable, add `|^CLAUDE\.md$` to the exclusion pattern in `README.md` and your local command.
+- `-x` — excludes `.git/`, `README.md`, `CLAUDE.md`, and `.claude/` from the upload
 
 ---
 
