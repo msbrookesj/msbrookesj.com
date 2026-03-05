@@ -88,6 +88,8 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 
 Each page sets its own nav item as active. When adding a new page or editing the navbar, update the `class="active"` on the correct `<li>` in every HTML file so all pages stay consistent.
 
+**Exception — `index.html`:** The homepage intentionally has no `class="active"` on any nav item. The homepage is reached via the navbar brand logo, not a nav link, so no highlight is appropriate.
+
 ---
 
 ## Images
