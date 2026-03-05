@@ -37,7 +37,10 @@ footer {
 
 .footer-right {
   flex: 1;
-  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 @media (max-width: 767px) {
@@ -48,7 +51,7 @@ footer {
   }
   .footer-left { order: 2; flex: none; }
   .footer-copyright { order: 1; flex: none; }
-  .footer-right { order: 3; flex: none; text-align: center; }
+  .footer-right { order: 3; flex: none; justify-content: center; }
 }
 
 .page-image {
@@ -72,8 +75,18 @@ footer {
 .social-youtube   { color: #FF0000; }
 .social-github    { color: #181717; }
 
-.social-linkedin:hover  { color: #F5A623; }
-.social-instagram:hover { color: #00BCD4; }
-.social-facebook:hover  { color: #4CAF50; }
-.social-youtube:hover   { color: #9C27B0; }
-.social-github:hover    { color: #FFD700; }
+.social-linkedin:hover   { color: #F5A623; }
+.social-instagram:hover  { color: #00BCD4; }
+.social-facebook:hover   { color: #4CAF50; }
+.social-youtube:hover    { color: #9C27B0; }
+.social-github:hover     { color: #FFD700; }
+
+.social-bootstrap   { color: #7952B3; }
+.social-fontawesome { color: #528DD3; }
+.social-google      { color: #4285F4; }
+.social-claude      { color: #CC785C; }
+
+.social-bootstrap:hover   { color: #FF6B6B; }
+.social-fontawesome:hover { color: #4CAF50; }
+.social-google:hover      { color: #FF5722; }
+.social-claude:hover      { color: #9C27B0; }
