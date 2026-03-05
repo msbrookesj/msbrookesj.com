@@ -106,13 +106,25 @@ Each page sets its own nav item as active. When adding a new page or editing the
 Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 
 ```bash
-gsutil rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/" ./ gs://b1ryan.com/
+gsutil -m rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/|^\.gitignore$" ./ gs://b1ryan.com/ && \
+gsutil -m cp -z "html,css,js" about.html academic.html athlete.html index.html office.html professional.html gs://b1ryan.com/ && \
+gsutil -m cp -r -z "css,js" bootstrap-css/ bootstrap-3.3.5-dist/css/ bootstrap-3.3.5-dist/js/ bootstrap-dep/ assets/font-awesome/css/ gs://b1ryan.com/
 ```
 
+This is a two-step process:
+1. `rsync` — syncs all files and deletes remote files not present locally
+2. `cp -z` — re-uploads HTML/CSS/JS with `Content-Encoding: gzip` so GCS serves them compressed to browsers
+
+`gsutil cp` does not support `-x`, so step 2 uses explicit paths to avoid uploading excluded files.
+
 Key flags:
+- `-m` — parallel (multi-threaded) transfers
 - `-r` — recursive
 - `-d` — delete remote files not present locally (destructive — double-check before running)
-- `-x` — excludes `.git/`, `README.md`, `CLAUDE.md`, and `.claude/` from the upload
+- `-x` — excludes `.git/`, `README.md`, `CLAUDE.md`, `.claude/`, and `.gitignore` from the upload
+- `-z` — compresses named file types and sets `Content-Encoding: gzip` on the GCS object
+
+**When adding a new HTML page**, add it to the `cp -z` command in step 2.
 
 ---
 
