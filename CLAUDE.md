@@ -52,7 +52,7 @@ msbrookesj.com/
 |-------|-----------|-------|
 | Markup | HTML5 | Hand-authored, no templating engine |
 | Styling | Bootstrap 3.3.5 | Vendored; custom overrides in `bootstrap-css/` |
-| Icons | Font Awesome 6.x | Locally hosted under `assets/font-awesome/` |
+| Icons | Font Awesome 7.x | Locally hosted under `assets/font-awesome/` |
 | JS | jQuery (minified) + Bootstrap JS | Vendored; no custom application JS |
 | Build | **None** | No bundler, no preprocessor, no npm |
 | Hosting | Google Cloud Storage | Static bucket serving |
