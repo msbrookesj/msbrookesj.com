@@ -1,0 +1,16 @@
+{
+  "name": "msbrookesj.com-tests",
+  "description": "Test tooling for the static site — not part of the site itself",
+  "private": true,
+  "scripts": {
+    "test:html": "html-validate *.html",
+    "test:a11y": "playwright test",
+    "test:lighthouse": "lhci autorun"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@lhci/cli": "^0.14.0",
+    "@playwright/test": "^1.50.0",
+    "html-validate": "^9.0.0"
+  }
+}

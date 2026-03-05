@@ -1,0 +1,17 @@
+# Lychee link checker configuration
+
+# Number of retries per request
+max_retries = 3
+
+# Request timeout in seconds
+timeout = 20
+
+# Accept these HTTP status codes as valid (429 = rate-limited but reachable)
+accept = [200, 206, 429]
+
+# Exclude social media sites that actively block automated crawlers
+exclude = [
+  "https://www\\.facebook\\.com",
+  "https://www\\.instagram\\.com",
+  "https://www\\.linkedin\\.com",
+]
