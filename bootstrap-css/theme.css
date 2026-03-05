@@ -26,6 +26,13 @@ footer {
 .footer-left {
   flex: 1;
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.footer-find-icons {
+  display: flex;
   align-items: center;
   gap: 8px;
 }
@@ -38,8 +45,23 @@ footer {
 .footer-right {
   flex: 1;
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.footer-built-label,
+.footer-find-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #aaa;
+  line-height: 1;
+}
+
+.footer-built-icons {
+  display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 8px;
 }
 
@@ -49,9 +71,9 @@ footer {
     align-items: center;
     gap: 10px;
   }
-  .footer-left { order: 2; flex: none; }
+  .footer-left { order: 2; flex: none; align-items: center; }
   .footer-copyright { order: 1; flex: none; }
-  .footer-right { order: 3; flex: none; justify-content: center; }
+  .footer-right { order: 3; flex: none; align-items: center; }
 }
 
 .page-image {
