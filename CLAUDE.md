@@ -38,6 +38,9 @@ msbrookesj.com/
 │   ├── athlete/            # Athlete page images (+ slideshow/ subfolder)
 │   └── professional/       # Professional page images
 │
+├── .claude/
+│   └── settings.json       # Project-shared Claude Code permissions
+│
 ├── favicon.ico
 ├── README.md               # Deployment command
 ├── CLAUDE.md               # This file
@@ -68,7 +71,7 @@ Every HTML page follows the same structural pattern:
 1. **`<head>`** — `bootstrap.min.css`, `bootstrap-theme.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title. `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages.
 2. **Fixed top navbar** — Links to About, Professional, Academic, Athlete. Active page highlighted with `class="active"`.
 3. **Main content** — Typically two Bootstrap columns: `col-md-8` (text) and `col-md-4` (image).
-4. **Footer** — Flexbox layout; copyright on the left, social media icons on the right (LinkedIn, Instagram, Facebook, YouTube, GitHub).
+4. **Footer** — Three-column flexbox layout: social media icons on the left (LinkedIn, Instagram, Facebook, YouTube, GitHub) with a "FIND ME" label above them, copyright centered, and brand/tech icons on the right (Bootstrap, Font Awesome, Google Cloud, Claude) with a "BUILT WITH" label above them.
 
 When editing or adding a page, match this structure exactly. Do not introduce new CSS frameworks or JavaScript libraries.
 
@@ -106,10 +109,12 @@ Each page sets its own nav item as active. When adding a new page or editing the
 Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 
 ```bash
-gsutil -m rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/|^\.gitignore$" ./ gs://b1ryan.com/ && \
-gsutil -m cp -z "html,css,js" about.html academic.html athlete.html index.html office.html professional.html gs://b1ryan.com/ && \
-gsutil -m cp -r -z "css,js" bootstrap-css/ bootstrap-3.3.5-dist/css/ bootstrap-3.3.5-dist/js/ bootstrap-dep/ assets/font-awesome/css/ gs://b1ryan.com/
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/|^\.gitignore$" ./ gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" about.html academic.html athlete.html index.html office.html professional.html gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" bootstrap-css/ bootstrap-3.3.5-dist/css/ bootstrap-3.3.5-dist/js/ bootstrap-dep/ assets/font-awesome/css/ gs://b1ryan.com/
 ```
+
+`gsutil` is not on the shell PATH — always use the absolute path `/Volumes/Source/google-cloud-sdk/bin/gsutil`.
 
 This is a two-step process:
 1. `rsync` — syncs all files and deletes remote files not present locally
@@ -134,6 +139,14 @@ Key flags:
 - Commit messages are imperative, short, and descriptive (e.g., `Add hover colors to social media icons`).
 - There is no CI/CD pipeline; pushes do not trigger automatic tests or deployments.
 - After pushing, deploy manually with the `gsutil` command above.
+
+---
+
+## Claude Code Settings
+
+Project-shared permissions are stored in `.claude/settings.json` and committed to the repository. This pre-authorizes the `gsutil` deploy commands so they run without prompting.
+
+User-specific overrides belong in `.claude/settings.local.json`, which is gitignored and never committed.
 
 ---
 
