@@ -20,6 +20,8 @@ msbrookesj.com/
 ├── academic.html           # Education, coursework, research
 ├── athlete.html            # Figure skating history
 ├── office.html             # Easter-egg page (embedded YouTube video)
+├── 404.html                # Custom "Page Not Found" error page (configured in GCS)
+├── sitemap.xml             # XML sitemap for search engine indexing
 │
 ├── bootstrap-3.3.5-dist/   # Bootstrap 3.3.5 framework (CSS + JS, vendored)
 ├── bootstrap-css/          # Custom Bootstrap overrides
@@ -81,7 +83,7 @@ There is no Sass/Less, no TypeScript, no JS framework, and no server-side code. 
 
 Every HTML page follows the same structural pattern:
 
-1. **`<head>`** — `bootstrap.min.css`, `bootstrap-theme.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title. `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages.
+1. **`<head>`** — `bootstrap.min.css`, `bootstrap-theme.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, and Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`). `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages.
 2. **Fixed top navbar** — Links to About, Professional, Academic, Athlete. Active page highlighted with `class="active"`.
 3. **Main content** — Typically two Bootstrap columns: `col-md-8` (text) and `col-md-4` (image).
 4. **Footer** — Three-column flexbox layout: social media icons on the left (LinkedIn, Instagram, Facebook, YouTube, GitHub) with a "FIND ME" label above them, copyright centered, and brand/tech icons on the right (Bootstrap, Font Awesome, Google Cloud, Claude) with a "BUILT WITH" label above them.
@@ -92,7 +94,7 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 
 ## CSS Conventions
 
-- `bootstrap-css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, and `.section-card` for centered index cards.
+- `bootstrap-css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, and a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7).
 - `bootstrap-css/jumbotron.css` — Minimal padding overrides only.
 - **No inline styles** beyond what Bootstrap already uses.
 - **Do not** add `<style>` blocks inside HTML files; put custom CSS in `theme.css`.
@@ -113,6 +115,7 @@ Each page sets its own nav item as active. When adding a new page or editing the
 - All images live under `assets/<section>/`.
 - Format: JPEG (`.jpg`).
 - Images are referenced with relative paths from the page root (e.g., `assets/athlete/photo.jpg`).
+- Sidebar images (in `.col-md-4`) use Bootstrap's `img-responsive` class — do **not** use a fixed `width` attribute, as this breaks responsiveness on smaller screens.
 - No image processing pipeline — add images as-is.
 
 ---
@@ -123,8 +126,14 @@ Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 
 ```bash
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/|^\.gitignore$|^node_modules/|^playwright-report/|^test-results/|^\.lighthouseci/|^package\.json$|^package-lock\.json$|^playwright\.config\.js$|^tests/|^\.github/|^\.lychee\.toml$|^\.htmlvalidate\.json$|^\.lighthouserc\.json$|^skater\.html$" ./ gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" about.html academic.html athlete.html index.html office.html professional.html gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" 404.html about.html academic.html athlete.html index.html office.html professional.html gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" bootstrap-css/ bootstrap-3.3.5-dist/css/ bootstrap-3.3.5-dist/js/ bootstrap-dep/ assets/font-awesome/css/ gs://b1ryan.com/
+```
+
+**One-time GCS NotFound configuration** (run once after first deploying `404.html`; only needs to be re-run if the bucket web config is ever reset):
+
+```bash
+/Volumes/Source/google-cloud-sdk/bin/gsutil web set -e 404.html gs://b1ryan.com/
 ```
 
 `gsutil` is not on the shell PATH — always use the absolute path `/Volumes/Source/google-cloud-sdk/bin/gsutil`.
@@ -139,7 +148,7 @@ Key flags:
 - `-m` — parallel (multi-threaded) transfers
 - `-r` — recursive
 - `-d` — delete remote files not present locally (destructive — double-check before running)
-- `-x` — excludes `.git/`, `README.md`, `CLAUDE.md`, `.claude/`, `.gitignore`, `skater.html`, test tooling (`package.json`, `package-lock.json`, `playwright.config.js`, `tests/`, `.github/`, `.lychee.toml`, `.htmlvalidate.json`, `.lighthouserc.json`), and test artifacts (`node_modules/`, `playwright-report/`, `test-results/`, `.lighthouseci/`) from the upload
+- `-x` — excludes `.git/`, `README.md`, `CLAUDE.md`, `.claude/`, `.gitignore`, `skater.html`, test tooling (`package.json`, `package-lock.json`, `playwright.config.js`, `tests/`, `.github/`, `.lychee.toml`, `.htmlvalidate.json`, `.lighthouserc.json`), and test artifacts (`node_modules/`, `playwright-report/`, `test-results/`, `.lighthouseci/`) from the upload; `sitemap.xml` is **not** excluded and syncs via `rsync`
 - `-z` — compresses named file types and sets `Content-Encoding: gzip` on the GCS object
 
 **When adding a new HTML page**, add it to the `cp -z` command in step 2.
@@ -213,9 +222,12 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 
 ### Add a new page
 1. Copy the structure of an existing page (e.g., `about.html`).
-2. Update the `<title>` and navbar `active` class.
-3. Add the new page's nav link to the navbar in **all** other HTML files.
-4. Place any new images under `assets/<section>/`.
+2. Update the `<title>`, `<link rel="canonical">`, and Open Graph / Twitter Card meta tags.
+3. Update the navbar `active` class.
+4. Add the new page's nav link to the navbar in **all** other HTML files.
+5. Place any new images under `assets/<section>/`.
+6. Add the new page to the `cp -z` deploy command in step 2 (both in `README.md` and `CLAUDE.md`).
+7. Add the new page's URL to `sitemap.xml`.
 
 ### Edit content on an existing page
 Open the relevant HTML file and edit the content inside the main `col-md-8` content column. Avoid changing the surrounding Bootstrap scaffold.
