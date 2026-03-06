@@ -2,6 +2,8 @@
 
 Personal portfolio website for Brooke Ryan. Static HTML/CSS site hosted on Google Cloud Storage.
 
+**Authoritative hostname:** `https://www.msbrookesj.com/` — all canonical URLs, Open Graph tags, and `sitemap.xml` entries must use this domain. Other domains (e.g. `b1ryan.com`) are aliases that redirect here. The GCS bucket is named `b1ryan.com` for historical reasons and stays as-is.
+
 ---
 
 ## Development
