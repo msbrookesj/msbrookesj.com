@@ -99,7 +99,7 @@ Every HTML page follows the same structural pattern:
 
 1. **`<head>`** — `bootstrap.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, and Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`). `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages. **All absolute URLs in these tags must use `https://www.msbrookesj.com/` — never `b1ryan.com` or any other alias.**
 2. **Fixed top navbar** — Links to About, Professional, Academic, Athlete. Active page highlighted with `class="active"`.
-3. **Main content** — Typically two Bootstrap columns: `col-md-8` (text) and `col-md-4` (image).
+3. **Main content** — Typically two Bootstrap columns: `col-md-8` (text) and `col-md-4` (image). Pages with no sidebar image (e.g., `license.html`) use a single `col-md-12` column spanning the full width.
 4. **Footer** — Three-column flexbox layout: social media icons on the left (LinkedIn, Instagram, Facebook, YouTube, GitHub) with a "FIND ME" label above them, copyright centered, and brand/tech icons on the right (Bootstrap, Font Awesome, Google Cloud, Claude) with a "BUILT WITH" label above them.
 
 When editing or adding a page, match this structure exactly. Do not introduce new CSS frameworks or JavaScript libraries.
