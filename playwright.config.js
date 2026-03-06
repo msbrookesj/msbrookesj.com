@@ -3,7 +3,7 @@ const { defineConfig, devices } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: './tests',
   webServer: {
-    command: 'python3 -m http.server 3000',
+    command: 'python3 -m http.server 3000 --directory website',
     port: 3000,
     reuseExistingServer: !process.env.CI,
   },
