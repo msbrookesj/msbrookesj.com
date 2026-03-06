@@ -9,8 +9,11 @@ timeout = 20
 # Accept these HTTP status codes as valid (429 = rate-limited but reachable)
 accept = [200, 206, 429]
 
-# Exclude social media sites and other sites that actively block automated crawlers
+# Exclude the site's own domain (canonical/og:url tags are absolute by spec but shouldn't
+# be checked externally — new pages won't resolve until deployed) and social media sites
+# and other sites that actively block automated crawlers
 exclude = [
+  "https://www\\.msbrookesj\\.com",
   "https://www\\.facebook\\.com",
   "https://www\\.instagram\\.com",
   "https://www\\.linkedin\\.com",

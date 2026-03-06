@@ -261,7 +261,7 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 ### Configuration files
 
 - `.htmlvalidate.json` — html-validate rules; `void-style: selfclose` enforces self-closing void elements (e.g. `<meta ... />`).
-- `.lychee.toml` — excludes sites that block automated crawlers or return unreliable results (Facebook, Instagram, LinkedIn, Yelp, claude.ai, icesymmetrics.com, glendale.edu).
+- `.lychee.toml` — excludes `www.msbrookesj.com` itself (canonical and `og:url` tags must be absolute per spec, but new pages won't resolve until deployed) and sites that block automated crawlers or return unreliable results (Facebook, Instagram, LinkedIn, Yelp, claude.ai, icesymmetrics.com, glendale.edu).
 - `.lighthouserc.json` — per-page URL list and score thresholds.
 - `playwright.config.js` — spins up `python3 -m http.server 3000 --directory website` before tests run.
 
