@@ -1,8 +1,8 @@
 # Hi, I'm Brooke 👋
 
-*The Professional. The Academic. The Athlete.*
+*The Professional. The Academic. The Athlete. The Mom.*
 
-Software engineer by day, figure skater by heart, perpetual student always.
+Software engineer by day, mom to two amazing kids, figure skater by heart, perpetual student always.
 This is my little slice of the internet — built by hand, hosted in the cloud.
 
 ![CI](https://github.com/msbrookesj/msbrookesj.com/actions/workflows/test.yml/badge.svg)
