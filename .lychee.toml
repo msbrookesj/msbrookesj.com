@@ -18,4 +18,5 @@ exclude = [
   "https://www\\.icesymmetrics\\.com",
   "https://www\\.glendale\\.edu",
   "https://www\\.yelp\\.com",
+  "https://www\\.cccaasports\\.org",
 ]
