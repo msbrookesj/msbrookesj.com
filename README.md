@@ -38,7 +38,7 @@ CI runs all four checks automatically on every push and pull request via GitHub 
 
 ```bash
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/|^\.gitignore$|^node_modules/|^playwright-report/|^test-results/|^\.lighthouseci/|^package\.json$|^package-lock\.json$|^playwright\.config\.js$|^tests/|^\.github/|^\.lychee\.toml$|^\.htmlvalidate\.json$|^\.lighthouserc\.json$|^skater\.html$" ./ gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" 404.html about.html academic.html athlete.html index.html office.html professional.html gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" 404.html about.html academic.html athlete.html index.html professional.html gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" bootstrap-css/ bootstrap-3.3.5-dist/css/ bootstrap-3.3.5-dist/js/ bootstrap-dep/ assets/font-awesome/css/ gs://b1ryan.com/
 ```
 

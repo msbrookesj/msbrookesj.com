@@ -19,7 +19,6 @@ msbrookesj.com/
 ├── professional.html       # Career / work history
 ├── academic.html           # Education, coursework, research
 ├── athlete.html            # Figure skating history
-├── office.html             # Easter-egg page (embedded YouTube video)
 ├── 404.html                # Custom "Page Not Found" error page (configured in GCS)
 ├── sitemap.xml             # XML sitemap for search engine indexing
 │
@@ -126,7 +125,7 @@ Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 
 ```bash
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/|^\.gitignore$|^node_modules/|^playwright-report/|^test-results/|^\.lighthouseci/|^package\.json$|^package-lock\.json$|^playwright\.config\.js$|^tests/|^\.github/|^\.lychee\.toml$|^\.htmlvalidate\.json$|^\.lighthouserc\.json$|^skater\.html$" ./ gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" 404.html about.html academic.html athlete.html index.html office.html professional.html gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" 404.html about.html academic.html athlete.html index.html professional.html gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" bootstrap-css/ bootstrap-3.3.5-dist/css/ bootstrap-3.3.5-dist/js/ bootstrap-dep/ assets/font-awesome/css/ gs://b1ryan.com/
 ```
 
@@ -199,7 +198,7 @@ Requires Node.js 20+ and Python 3 (Python is used to serve the site locally duri
 | Command | Tool | What it checks |
 |---------|------|----------------|
 | `npm run test:html` | html-validate | Malformed markup, missing `alt` text, invalid attributes |
-| `npm run test:a11y` | Playwright + axe-core | WCAG 2.1 AA violations on all six pages |
+| `npm run test:a11y` | Playwright + axe-core | WCAG 2.1 AA violations on all five pages |
 | `npm run test:lighthouse` | Lighthouse CI | Performance, accessibility, best practices, SEO scores |
 | `lychee --config .lychee.toml *.html` | lychee | Broken internal and external links |
 
