@@ -25,8 +25,7 @@ msbrookesj.com/
 │   ├── favicon.ico
 │   │
 │   ├── css/
-│   │   ├── theme.css               # Footer layout, social icon hover colors, .page-image, .section-card
-│   │   └── jumbotron.css           # Basic jumbotron padding (index.html only)
+│   │   └── theme.css               # Footer layout, social icon hover colors, .page-image, .section-card
 │   │
 │   ├── dependencies/               # Third-party libraries (vendored)
 │   │   ├── bootstrap/              # Bootstrap 3.3.5 framework
@@ -37,9 +36,7 @@ msbrookesj.com/
 │   │   │   ├── css/                # fontawesome.min.css, brands.min.css, solid.min.css
 │   │   │   └── webfonts/           # fa-brands-400.woff2, fa-solid-900.woff2
 │   │   ├── jquery.min.js           # jQuery (minified)
-│   │   ├── jquery.min.map
-│   │   ├── html5shiv.min.js        # IE8 polyfill
-│   │   └── respond.min.js          # IE8 media-query polyfill
+│   │   └── jquery.min.map
 │   │
 │   └── assets/
 │       ├── about/                  # About page images
@@ -89,7 +86,7 @@ There is no Sass/Less, no TypeScript, no JS framework, and no server-side code. 
 
 Every HTML page follows the same structural pattern:
 
-1. **`<head>`** — `bootstrap.min.css`, `bootstrap-theme.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, and Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`). `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages.
+1. **`<head>`** — `bootstrap.min.css`, `bootstrap-theme.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, and Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`). Do not add or remove stylesheets without applying the same change to all pages.
 2. **Fixed top navbar** — Links to About, Professional, Academic, Athlete. Active page highlighted with `class="active"`.
 3. **Main content** — Typically two Bootstrap columns: `col-md-8` (text) and `col-md-4` (image).
 4. **Footer** — Three-column flexbox layout: social media icons on the left (LinkedIn, Instagram, Facebook, YouTube, GitHub) with a "FIND ME" label above them, copyright centered, and brand/tech icons on the right (Bootstrap, Font Awesome, Google Cloud, Claude) with a "BUILT WITH" label above them.
@@ -101,7 +98,6 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 ## CSS Conventions
 
 - `website/css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7), `p a, li a { text-decoration: underline }` for link distinguishability (WCAG 1.4.1) with `.navbar li a, footer a { text-decoration: none }` to exclude nav/footer links, and a `.jumbotron a` color override for contrast.
-- `website/css/jumbotron.css` — Minimal padding overrides only.
 - **No inline styles** beyond what Bootstrap already uses.
 - **Do not** add `<style>` blocks inside HTML files; put custom CSS in `theme.css`.
 - Class naming follows Bootstrap conventions (`row`, `col-md-*`, `btn`, etc.).
@@ -121,7 +117,7 @@ Each page sets its own nav item as active. When adding a new page or editing the
 - All images live under `website/assets/<section>/`.
 - Format: JPEG (`.jpg`).
 - Images are referenced with relative paths from the page (e.g., `assets/athlete/photo.jpg`).
-- Sidebar images (in `.col-md-4`) use Bootstrap's `img-responsive` class — do **not** use a fixed `width` attribute, as this breaks responsiveness on smaller screens.
+- Sidebar images (in `.col-md-4`) use Bootstrap's `img-responsive` class, which applies `max-width: 100%` so they scale down on small screens. Always include explicit `width` and `height` attributes matching the image's intrinsic pixel dimensions — this lets the browser reserve the correct space before the image loads, preventing layout shift (CLS). These attributes do not break responsiveness because `img-responsive` overrides the rendered size.
 - No image processing pipeline — add images as-is.
 
 ---
