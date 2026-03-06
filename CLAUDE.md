@@ -129,7 +129,8 @@ Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 ```bash
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d website/ gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" website/404.html website/about.html website/academic.html website/athlete.html website/index.html website/professional.html gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" website/css/ website/dependencies/ gs://b1ryan.com/
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" website/css/ website/dependencies/ gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gcloud compute url-maps invalidate-cdn-cache ryanfam18-com --global --path "/*"
 ```
 
 **One-time GCS NotFound configuration** (run once after first deploying `404.html`; only needs to be re-run if the bucket web config is ever reset):
@@ -138,11 +139,12 @@ Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 /Volumes/Source/google-cloud-sdk/bin/gsutil web set -e 404.html gs://b1ryan.com/
 ```
 
-`gsutil` is not on the shell PATH — always use the absolute path `/Volumes/Source/google-cloud-sdk/bin/gsutil`.
+`gsutil` and `gcloud` are not on the shell PATH — always use the absolute path `/Volumes/Source/google-cloud-sdk/bin/gsutil` and `/Volumes/Source/google-cloud-sdk/bin/gcloud`.
 
-This is a two-step process:
+This is a three-step process:
 1. `rsync` — syncs all files from `website/` and deletes remote files not present locally. No exclusions are needed — all test tooling and repo metadata live outside `website/`.
 2. `cp -z` — re-uploads HTML/CSS/JS with `Content-Encoding: gzip` so GCS serves them compressed to browsers
+3. `invalidate-cdn-cache` — flushes the Cloud CDN cache for the `ryanfam18-com` URL map so changes are visible immediately
 
 `gsutil cp` does not support `-x`. Step 2 uses **explicit paths** (never `website/` as a catch-all) to control exactly which files are gzip-encoded. Do not change the `cp` commands to use `website/` as the sole source.
 
