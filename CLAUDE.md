@@ -162,6 +162,9 @@ Key flags:
 - Commit messages are imperative, short, and descriptive (e.g., `Add hover colors to social media icons`).
 - Pushing or opening a pull request triggers the GitHub Actions test suite (HTML validation, link check, accessibility, Lighthouse). There is no automatic deployment.
 - After merging, deploy manually with the `gsutil` command above.
+- **Before opening a PR**, rebase the feature branch onto `main` (`git fetch origin main && git rebase origin/main`) to surface and resolve any conflicts locally before review.
+- **Related changes to the same files** should be in a single commit rather than split across multiple commits — this minimises the number of conflict hunks during a rebase.
+- The repo is configured with `pull.rebase = true` and `rebase.autoStash = true` (see `.git/config`), so `git pull` always rebases rather than merges.
 
 ---
 
