@@ -37,8 +37,7 @@ msbrookesj.com/
 │   ├── favicon.ico
 │   │
 │   ├── css/
-│   │   ├── theme.css               # Footer layout, social icon hover colors, .page-image, .section-card
-│   │   └── jumbotron.css           # Basic jumbotron padding (index.html only)
+│   │   └── theme.css               # Footer layout, social icon hover colors, .page-image, .section-card
 │   │
 │   ├── dependencies/               # Third-party libraries (vendored)
 │   │   ├── bootstrap/              # Bootstrap 3.3.5 framework
@@ -49,9 +48,7 @@ msbrookesj.com/
 │   │   │   ├── css/                # fontawesome.min.css, brands.min.css, solid.min.css
 │   │   │   └── webfonts/           # fa-brands-400.woff2, fa-solid-900.woff2
 │   │   ├── jquery.min.js           # jQuery (minified)
-│   │   ├── jquery.min.map
-│   │   ├── html5shiv.min.js        # IE8 polyfill
-│   │   └── respond.min.js          # IE8 media-query polyfill
+│   │   └── jquery.min.map
 │   │
 │   └── assets/
 │       ├── about/                  # About page images
@@ -113,7 +110,6 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 ## CSS Conventions
 
 - `website/css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7), `p a, li a { text-decoration: underline }` for link distinguishability (WCAG 1.4.1) with `.navbar li a, footer a { text-decoration: none }` to exclude nav/footer links, and a `.jumbotron a` color override for contrast.
-- `website/css/jumbotron.css` — Minimal padding overrides only.
 - **No inline styles** beyond what Bootstrap already uses.
 - **Do not** add `<style>` blocks inside HTML files; put custom CSS in `theme.css`.
 - Class naming follows Bootstrap conventions (`row`, `col-md-*`, `btn`, etc.).
@@ -133,7 +129,7 @@ Each page sets its own nav item as active. When adding a new page or editing the
 - All images live under `website/assets/<section>/`.
 - Format: JPEG (`.jpg`).
 - Images are referenced with relative paths from the page (e.g., `assets/athlete/photo.jpg`).
-- Sidebar images (in `.col-md-4`) use Bootstrap's `img-responsive` class — do **not** use a fixed `width` attribute, as this breaks responsiveness on smaller screens.
+- Sidebar images (in `.col-md-4`) use Bootstrap's `img-responsive` class, which applies `max-width: 100%` so they scale down on small screens. Always include explicit `width` and `height` attributes matching the image's intrinsic pixel dimensions — this lets the browser reserve the correct space before the image loads, preventing layout shift (CLS). These attributes do not break responsiveness because `img-responsive` overrides the rendered size.
 - No image processing pipeline — add images as-is.
 
 ---
@@ -145,7 +141,8 @@ Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 ```bash
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d website/ gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" website/404.html website/about.html website/academic.html website/athlete.html website/index.html website/professional.html gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" website/css/ website/dependencies/ gs://b1ryan.com/
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" website/css/ website/dependencies/ gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gcloud compute url-maps invalidate-cdn-cache ryanfam18-com --global --path "/*"
 ```
 
 **One-time GCS NotFound configuration** (run once after first deploying `404.html`; only needs to be re-run if the bucket web config is ever reset):
@@ -154,11 +151,12 @@ Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 /Volumes/Source/google-cloud-sdk/bin/gsutil web set -e 404.html gs://b1ryan.com/
 ```
 
-`gsutil` is not on the shell PATH — always use the absolute path `/Volumes/Source/google-cloud-sdk/bin/gsutil`.
+`gsutil` and `gcloud` are not on the shell PATH — always use the absolute path `/Volumes/Source/google-cloud-sdk/bin/gsutil` and `/Volumes/Source/google-cloud-sdk/bin/gcloud`.
 
-This is a two-step process:
+This is a three-step process:
 1. `rsync` — syncs all files from `website/` and deletes remote files not present locally. No exclusions are needed — all test tooling and repo metadata live outside `website/`.
 2. `cp -z` — re-uploads HTML/CSS/JS with `Content-Encoding: gzip` so GCS serves them compressed to browsers
+3. `invalidate-cdn-cache` — flushes the Cloud CDN cache for the `ryanfam18-com` URL map so changes are visible immediately
 
 `gsutil cp` does not support `-x`. Step 2 uses **explicit paths** (never `website/` as a catch-all) to control exactly which files are gzip-encoded. Do not change the `cp` commands to use `website/` as the sole source.
 
@@ -178,6 +176,9 @@ Key flags:
 - Commit messages are imperative, short, and descriptive (e.g., `Add hover colors to social media icons`).
 - Pushing or opening a pull request triggers the GitHub Actions test suite (HTML validation, link check, accessibility, Lighthouse). There is no automatic deployment.
 - After merging, deploy manually with the `gsutil` command above.
+- **Before opening a PR**, rebase the feature branch onto `main` (`git fetch origin main && git rebase origin/main`) to surface and resolve any conflicts locally before review.
+- **Related changes to the same files** should be in a single commit rather than split across multiple commits — this minimises the number of conflict hunks during a rebase.
+- The repo is configured with `pull.rebase = true` and `rebase.autoStash = true` (see `.git/config`), so `git pull` always rebases rather than merges.
 
 ---
 

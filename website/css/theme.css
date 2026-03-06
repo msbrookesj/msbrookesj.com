@@ -52,8 +52,8 @@ footer {
 
 .footer-built-label,
 .footer-find-label {
-  font-size: 9px;
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #767676;
   line-height: 1;
@@ -81,7 +81,7 @@ footer {
 }
 
 .page-image img {
-  margin: 20px;
+  margin: 20px auto;
 }
 
 .section-card {
