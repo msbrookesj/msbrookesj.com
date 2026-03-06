@@ -14,11 +14,11 @@ A personal portfolio website for msbrookesj (Brooke Ryan), hosted as a static si
 
 **The canonical domain for this website is `https://www.msbrookesj.com/`.**
 
-All absolute URLs in HTML pages (canonical tags, Open Graph / Twitter Card meta tags) and in `sitemap.xml` **must** use `https://www.msbrookesj.com/` as the base. Other domains such as `b1ryan.com` are aliases that redirect to this authoritative hostname.
+All absolute URLs in HTML pages (canonical tags, Open Graph / Twitter Card meta tags, JSON-LD structured data) and in `sitemap.xml` **must** use `https://www.msbrookesj.com/` as the base. Other domains such as `b1ryan.com` are aliases that redirect to this authoritative hostname.
 
 The GCS bucket is named `b1ryan.com` — that is intentional and must remain as-is. The bucket name has no bearing on the canonical URLs used within the site's HTML and sitemap.
 
-> **Common mistake to avoid:** Do not use `b1ryan.com` or any other alias as the hostname in `<link rel="canonical">`, `og:url`, `og:image`, `twitter:image`, or `sitemap.xml`. Always use `www.msbrookesj.com`.
+> **Common mistake to avoid:** Do not use `b1ryan.com` or any other alias as the hostname in `<link rel="canonical">`, `og:url`, `og:image`, `twitter:image`, JSON-LD `url`/`image` fields, or `sitemap.xml`. Always use `www.msbrookesj.com`.
 
 ---
 
@@ -97,7 +97,7 @@ There is no Sass/Less, no TypeScript, no JS framework, and no server-side code. 
 
 Every HTML page follows the same structural pattern:
 
-1. **`<head>`** — `bootstrap.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, and Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`). `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages. **All absolute URLs in these tags must use `https://www.msbrookesj.com/` — never `b1ryan.com` or any other alias.**
+1. **`<head>`** — `bootstrap.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`), and a `<script type="application/ld+json">` block with Schema.org `Person` structured data (see below). `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages. **All absolute URLs in these tags must use `https://www.msbrookesj.com/` — never `b1ryan.com` or any other alias.**
 2. **Fixed top navbar** — Links to About, Professional, Academic, Athlete. Active page highlighted with `class="active"`.
 3. **Main content** — Typically two Bootstrap columns: `col-md-8` (text) and `col-md-4` (image). Pages with no sidebar image (e.g., `license.html`) use a single `col-md-12` column spanning the full width.
 4. **Footer** — Three-column flexbox layout: social media icons on the left (LinkedIn, Instagram, Facebook, YouTube, GitHub) with a "FIND ME" label above them, copyright centered, and brand/tech icons on the right (Bootstrap, Font Awesome, Google Cloud, Claude) with a "BUILT WITH" label above them.
@@ -112,6 +112,32 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 - **No inline styles** beyond what Bootstrap already uses.
 - **Do not** add `<style>` blocks inside HTML files; put custom CSS in `theme.css`.
 - Class naming follows Bootstrap conventions (`row`, `col-md-*`, `btn`, etc.).
+
+---
+
+## Structured Data (JSON-LD)
+
+`index.html` and `about.html` each include a `<script type="application/ld+json">` block in the `<head>` that declares a Schema.org `Person` entity. This is machine-readable metadata — invisible to visitors — that helps AI systems, search engines, and knowledge graphs unambiguously identify which Brooke Ryan this site belongs to.
+
+The block should remain consistent across both pages and include:
+
+| Field | Value |
+|-------|-------|
+| `@type` | `"Person"` |
+| `name` | `"Brooke Ryan"` |
+| `alternateName` | `"msbrookesj"` |
+| `url` | `"https://www.msbrookesj.com/"` |
+| `image` | Current profile photo URL (use `www.msbrookesj.com`) |
+| `description` | One-sentence summary used for disambiguation |
+| `jobTitle` | Current job title |
+| `worksFor` | Current employer (Organization) |
+| `alumniOf` | UCSD (CollegeOrUniversity) |
+| `address` | San Jose, CA |
+| `sameAs` | All social profile URLs (LinkedIn, Instagram, Facebook, YouTube, GitHub) |
+
+**If Brooke's job title, employer, or social profile URLs change**, update the JSON-LD block in both `index.html` and `about.html` at the same time, keeping them in sync.
+
+**Do not** use `b1ryan.com` in the JSON-LD `url` or `image` fields — always use `www.msbrookesj.com`.
 
 ---
 
@@ -224,7 +250,7 @@ User-specific overrides belong in `.claude/settings.local.json`, which is gitign
 
 - **Do not** add a bundler, preprocessor, or application-level npm dependencies. The `package.json` is for test tooling only.
 - **Do not** upgrade Bootstrap (currently 5.3.3) without testing all pages — Bootstrap has had breaking API changes between major versions.
-- **Do not** add inline `<script>` or `<style>` blocks to HTML pages.
+- **Do not** add inline `<script>` or `<style>` blocks to HTML pages. The one exception is `<script type="application/ld+json">` for Schema.org structured data — that is intentional and must be kept.
 - **Do not** push directly to `main`/`master` without a feature branch.
 - **Do not** run `gsutil rsync -d` without verifying the local state matches intent — the `-d` flag deletes remote files.
 - **Do not** run `gsutil cp -r website/` (with `website/` as the sole source) — it will upload all files including any in-progress pages. Always use the documented deploy script, which lists explicit paths in the `cp` steps.
@@ -277,6 +303,8 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 5. Place any new images under `website/assets/<section>/`.
 6. Add the new page to the `cp -z` deploy command in step 2 (both in `README.md` and `CLAUDE.md`).
 7. Add the new page's URL to `sitemap.xml`.
+
+Note: the JSON-LD `Person` block lives only on `index.html` and `about.html` — do not copy it to content subpages.
 
 ### Edit content on an existing page
 Open the relevant HTML file and edit the content inside the main `col-md-8` content column. Avoid changing the surrounding Bootstrap scaffold.
