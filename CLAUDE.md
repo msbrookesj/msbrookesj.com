@@ -122,7 +122,7 @@ Each page sets its own nav item as active. When adding a new page or editing the
 Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 
 ```bash
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/|^\.gitignore$|^node_modules/|^playwright-report/|^test-results/|^\.lighthouseci/" ./ gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/|^\.gitignore$|^node_modules/|^playwright-report/|^test-results/|^\.lighthouseci/|^package\.json$|^package-lock\.json$|^playwright\.config\.js$|^tests/|^\.github/|^\.lychee\.toml$|^\.htmlvalidate\.json$|^\.lighthouserc\.json$|^skater\.html$" ./ gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" about.html academic.html athlete.html index.html office.html professional.html gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" bootstrap-css/ bootstrap-3.3.5-dist/css/ bootstrap-3.3.5-dist/js/ bootstrap-dep/ assets/font-awesome/css/ gs://b1ryan.com/
 ```
@@ -139,7 +139,7 @@ Key flags:
 - `-m` — parallel (multi-threaded) transfers
 - `-r` — recursive
 - `-d` — delete remote files not present locally (destructive — double-check before running)
-- `-x` — excludes `.git/`, `README.md`, `CLAUDE.md`, `.claude/`, `.gitignore`, and test artifacts (`node_modules/`, `playwright-report/`, `test-results/`, `.lighthouseci/`) from the upload
+- `-x` — excludes `.git/`, `README.md`, `CLAUDE.md`, `.claude/`, `.gitignore`, `skater.html`, test tooling (`package.json`, `package-lock.json`, `playwright.config.js`, `tests/`, `.github/`, `.lychee.toml`, `.htmlvalidate.json`, `.lighthouserc.json`), and test artifacts (`node_modules/`, `playwright-report/`, `test-results/`, `.lighthouseci/`) from the upload
 - `-z` — compresses named file types and sets `Content-Encoding: gzip` on the GCS object
 
 **When adding a new HTML page**, add it to the `cp -z` command in step 2.

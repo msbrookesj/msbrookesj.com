@@ -37,12 +37,12 @@ CI runs all four checks automatically on every push and pull request via GitHub 
 ## Publish
 
 ```bash
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/|^\.gitignore$|^node_modules/|^playwright-report/|^test-results/|^\.lighthouseci/" ./ gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/|^\.gitignore$|^node_modules/|^playwright-report/|^test-results/|^\.lighthouseci/|^package\.json$|^package-lock\.json$|^playwright\.config\.js$|^tests/|^\.github/|^\.lychee\.toml$|^\.htmlvalidate\.json$|^\.lighthouserc\.json$|^skater\.html$" ./ gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" about.html academic.html athlete.html index.html office.html professional.html gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" bootstrap-css/ bootstrap-3.3.5-dist/css/ bootstrap-3.3.5-dist/js/ bootstrap-dep/ assets/font-awesome/css/ gs://b1ryan.com/
 ```
 
 Verify no excluded files leaked to the bucket:
 ```bash
-/Volumes/Source/google-cloud-sdk/bin/gsutil ls gs://b1ryan.com/.git/ gs://b1ryan.com/README.md gs://b1ryan.com/CLAUDE.md gs://b1ryan.com/.gitignore gs://b1ryan.com/.claude/ 2>&1 | grep -q "matched no objects" && echo "OK: no excluded files in bucket" || echo "WARNING: excluded files found in bucket — remove them manually"
+/Volumes/Source/google-cloud-sdk/bin/gsutil ls gs://b1ryan.com/.git/ gs://b1ryan.com/README.md gs://b1ryan.com/CLAUDE.md gs://b1ryan.com/.gitignore gs://b1ryan.com/.claude/ gs://b1ryan.com/package.json gs://b1ryan.com/package-lock.json gs://b1ryan.com/playwright.config.js gs://b1ryan.com/tests/ gs://b1ryan.com/.github/ gs://b1ryan.com/.lychee.toml gs://b1ryan.com/.htmlvalidate.json gs://b1ryan.com/.lighthouserc.json gs://b1ryan.com/skater.html 2>&1 | grep -q "matched no objects" && echo "OK: no excluded files in bucket" || echo "WARNING: excluded files found in bucket — remove them manually"
 ```
