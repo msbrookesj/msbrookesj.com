@@ -7,12 +7,11 @@ const pages = [
   { name: 'Professional', path: '/professional.html' },
   { name: 'Academic',     path: '/academic.html' },
   { name: 'Athlete',      path: '/athlete.html' },
-  { name: 'Office',       path: '/office.html' },
 ];
 
 for (const { name, path } of pages) {
   test(`${name} page has no WCAG 2.1 AA violations`, async ({ page }) => {
-    // domcontentloaded avoids waiting on third-party iframes (e.g. YouTube on office.html)
+    // domcontentloaded avoids waiting on third-party iframes
     await page.goto(path, { waitUntil: 'domcontentloaded' });
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])

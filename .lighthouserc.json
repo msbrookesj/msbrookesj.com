@@ -7,8 +7,7 @@
         "/about.html",
         "/professional.html",
         "/academic.html",
-        "/athlete.html",
-        "/office.html"
+        "/athlete.html"
       ]
     },
     "assert": {
