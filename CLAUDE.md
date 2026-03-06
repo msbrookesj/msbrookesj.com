@@ -203,7 +203,7 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 ### Configuration files
 
 - `.htmlvalidate.json` — html-validate rules; `void-style: selfclose` matches Bootstrap 3's `/>` syntax.
-- `.lychee.toml` — excludes Facebook, Instagram, and LinkedIn (they block automated crawlers).
+- `.lychee.toml` — excludes sites that block automated crawlers or return unreliable results (Facebook, Instagram, LinkedIn, Yelp, claude.ai, icesymmetrics.com, glendale.edu).
 - `.lighthouserc.json` — per-page URL list and score thresholds.
 - `playwright.config.js` — spins up `python3 -m http.server 3000` before tests run.
 
