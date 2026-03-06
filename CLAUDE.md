@@ -14,49 +14,56 @@ A personal portfolio website for msbrookesj (Brooke Ryan), hosted as a static si
 
 ```
 msbrookesj.com/
-├── index.html              # Homepage / landing page
-├── about.html              # About Me section
-├── professional.html       # Career / work history
-├── academic.html           # Education, coursework, research
-├── athlete.html            # Figure skating history
-├── 404.html                # Custom "Page Not Found" error page (configured in GCS)
-├── sitemap.xml             # XML sitemap for search engine indexing
-│
-├── bootstrap-3.3.5-dist/   # Bootstrap 3.3.5 framework (CSS + JS, vendored)
-├── bootstrap-css/          # Custom Bootstrap overrides
-│   ├── theme.css           # Footer layout, social icon hover colors, .page-image, .section-card
-│   └── jumbotron.css       # Basic jumbotron padding
-├── bootstrap-dep/          # Bootstrap JS dependencies
-│   ├── jquery.min.js       # jQuery (minified)
-│   ├── html5shiv.min.js    # IE8 polyfill
-│   └── respond.min.js      # IE8 media-query polyfill
-│
-├── assets/
-│   ├── font-awesome/       # Font Awesome icon library (locally hosted)
-│   ├── slideshow/          # Homepage slideshow images
-│   ├── about/              # About page images
-│   ├── academic/           # Academic page images
-│   ├── athlete/            # Athlete page images (+ slideshow/ subfolder)
-│   └── professional/       # Professional page images
+├── website/                        # All deployable site files
+│   ├── index.html                  # Homepage / landing page
+│   ├── about.html                  # About Me section
+│   ├── professional.html           # Career / work history
+│   ├── academic.html               # Education, coursework, research
+│   ├── athlete.html                # Figure skating history
+│   ├── 404.html                    # Custom "Page Not Found" error page (configured in GCS)
+│   ├── sitemap.xml                 # XML sitemap for search engine indexing
+│   ├── favicon.ico
+│   │
+│   ├── css/
+│   │   ├── theme.css               # Footer layout, social icon hover colors, .page-image, .section-card
+│   │   └── jumbotron.css           # Basic jumbotron padding (index.html only)
+│   │
+│   ├── dependencies/               # Third-party libraries (vendored)
+│   │   ├── bootstrap/              # Bootstrap 3.3.5 framework
+│   │   │   ├── css/                # bootstrap.min.css, bootstrap-theme.min.css, etc.
+│   │   │   ├── js/                 # bootstrap.min.js
+│   │   │   └── fonts/              # Glyphicons webfonts
+│   │   ├── font-awesome/           # Font Awesome icon library
+│   │   │   ├── css/                # fontawesome.min.css, brands.min.css, solid.min.css
+│   │   │   └── webfonts/           # fa-brands-400.woff2, fa-solid-900.woff2
+│   │   ├── jquery.min.js           # jQuery (minified)
+│   │   ├── jquery.min.map
+│   │   ├── html5shiv.min.js        # IE8 polyfill
+│   │   └── respond.min.js          # IE8 media-query polyfill
+│   │
+│   └── assets/
+│       ├── about/                  # About page images
+│       ├── academic/               # Academic page images
+│       ├── athlete/                # Athlete page images (+ slideshow/ subfolder)
+│       └── professional/           # Professional page images
 │
 ├── tests/
-│   └── a11y.spec.js        # Playwright + axe-core accessibility tests (WCAG 2.1 AA)
+│   └── a11y.spec.js                # Playwright + axe-core accessibility tests (WCAG 2.1 AA)
 │
 ├── .github/
 │   └── workflows/
-│       └── test.yml        # CI: HTML validation, link check, a11y, Lighthouse
+│       └── test.yml                # CI: HTML validation, link check, a11y, Lighthouse
 │
 ├── .claude/
-│   └── settings.json       # Project-shared Claude Code permissions
+│   └── settings.json               # Project-shared Claude Code permissions
 │
-├── .htmlvalidate.json       # html-validate config
-├── .lighthouserc.json       # Lighthouse CI config and score thresholds
-├── .lychee.toml             # Lychee link checker config
-├── package.json             # Test tooling only (not part of the site)
-├── playwright.config.js     # Playwright config (serves site via python3 -m http.server)
-├── favicon.ico
-├── README.md                # Dev setup, test commands, and deployment
-├── CLAUDE.md                # This file
+├── .htmlvalidate.json               # html-validate config
+├── .lighthouserc.json               # Lighthouse CI config and score thresholds
+├── .lychee.toml                     # Lychee link checker config
+├── package.json                     # Test tooling only (not part of the site)
+├── playwright.config.js             # Playwright config (serves website/ via python3 -m http.server)
+├── README.md                        # Dev setup, test commands, and deployment
+├── CLAUDE.md                        # This file
 └── .gitignore
 ```
 
@@ -67,8 +74,8 @@ msbrookesj.com/
 | Layer | Technology | Notes |
 |-------|-----------|-------|
 | Markup | HTML5 | Hand-authored, no templating engine |
-| Styling | Bootstrap 3.3.5 | Vendored; custom overrides in `bootstrap-css/` |
-| Icons | Font Awesome 7.x | Locally hosted under `assets/font-awesome/` |
+| Styling | Bootstrap 3.3.5 | Vendored under `website/dependencies/bootstrap/`; custom overrides in `website/css/` |
+| Icons | Font Awesome 7.x | Locally hosted under `website/dependencies/font-awesome/` |
 | JS | jQuery (minified) + Bootstrap JS | Vendored; no custom application JS |
 | Build | **None** | No bundler, no preprocessor |
 | Testing | html-validate, lychee, Playwright + axe-core, Lighthouse CI | Test tooling only; not deployed |
@@ -93,8 +100,8 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 
 ## CSS Conventions
 
-- `bootstrap-css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, and a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7).
-- `bootstrap-css/jumbotron.css` — Minimal padding overrides only.
+- `website/css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, and a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7).
+- `website/css/jumbotron.css` — Minimal padding overrides only.
 - **No inline styles** beyond what Bootstrap already uses.
 - **Do not** add `<style>` blocks inside HTML files; put custom CSS in `theme.css`.
 - Class naming follows Bootstrap conventions (`row`, `col-md-*`, `btn`, etc.).
@@ -111,9 +118,9 @@ Each page sets its own nav item as active. When adding a new page or editing the
 
 ## Images
 
-- All images live under `assets/<section>/`.
+- All images live under `website/assets/<section>/`.
 - Format: JPEG (`.jpg`).
-- Images are referenced with relative paths from the page root (e.g., `assets/athlete/photo.jpg`).
+- Images are referenced with relative paths from the page (e.g., `assets/athlete/photo.jpg`).
 - Sidebar images (in `.col-md-4`) use Bootstrap's `img-responsive` class — do **not** use a fixed `width` attribute, as this breaks responsiveness on smaller screens.
 - No image processing pipeline — add images as-is.
 
@@ -124,9 +131,9 @@ Each page sets its own nav item as active. When adding a new page or editing the
 Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 
 ```bash
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d -x "^\.git/|^README\.md$|^CLAUDE\.md$|^\.claude/|^\.gitignore$|^node_modules/|^playwright-report/|^test-results/|^\.lighthouseci/|^package\.json$|^package-lock\.json$|^playwright\.config\.js$|^tests/|^\.github/|^\.lychee\.toml$|^\.htmlvalidate\.json$|^\.lighthouserc\.json$|^skater\.html$" ./ gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" 404.html about.html academic.html athlete.html index.html professional.html gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" bootstrap-css/ bootstrap-3.3.5-dist/css/ bootstrap-3.3.5-dist/js/ bootstrap-dep/ assets/font-awesome/css/ gs://b1ryan.com/
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d website/ gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" website/404.html website/about.html website/academic.html website/athlete.html website/index.html website/professional.html gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" website/css/ website/dependencies/ gs://b1ryan.com/
 ```
 
 **One-time GCS NotFound configuration** (run once after first deploying `404.html`; only needs to be re-run if the bucket web config is ever reset):
@@ -138,16 +145,15 @@ Deployed manually with `gsutil rsync` to a Google Cloud Storage bucket:
 `gsutil` is not on the shell PATH — always use the absolute path `/Volumes/Source/google-cloud-sdk/bin/gsutil`.
 
 This is a two-step process:
-1. `rsync` — syncs all files and deletes remote files not present locally
+1. `rsync` — syncs all files from `website/` and deletes remote files not present locally. No exclusions are needed — all test tooling and repo metadata live outside `website/`.
 2. `cp -z` — re-uploads HTML/CSS/JS with `Content-Encoding: gzip` so GCS serves them compressed to browsers
 
-`gsutil cp` does not support `-x`. Step 2 uses **explicit paths** (never `./`) specifically to prevent excluded files (`.git/`, `CLAUDE.md`, etc.) from being uploaded. Do not change the `cp` commands to use `./` as the source.
+`gsutil cp` does not support `-x`. Step 2 uses **explicit paths** (never `website/` as a catch-all) to control exactly which files are gzip-encoded. Do not change the `cp` commands to use `website/` as the sole source.
 
 Key flags:
 - `-m` — parallel (multi-threaded) transfers
 - `-r` — recursive
 - `-d` — delete remote files not present locally (destructive — double-check before running)
-- `-x` — excludes `.git/`, `README.md`, `CLAUDE.md`, `.claude/`, `.gitignore`, `skater.html`, test tooling (`package.json`, `package-lock.json`, `playwright.config.js`, `tests/`, `.github/`, `.lychee.toml`, `.htmlvalidate.json`, `.lighthouserc.json`), and test artifacts (`node_modules/`, `playwright-report/`, `test-results/`, `.lighthouseci/`) from the upload; `sitemap.xml` is **not** excluded and syncs via `rsync`
 - `-z` — compresses named file types and sets `Content-Encoding: gzip` on the GCS object
 
 **When adding a new HTML page**, add it to the `cp -z` command in step 2.
@@ -178,7 +184,7 @@ User-specific overrides belong in `.claude/settings.local.json`, which is gitign
 - **Do not** add inline `<script>` or `<style>` blocks to HTML pages.
 - **Do not** push directly to `main`/`master` without a feature branch.
 - **Do not** run `gsutil rsync -d` without verifying the local state matches intent — the `-d` flag deletes remote files.
-- **Do not** run `gsutil cp -r ./` (with `./` as the source) without explicit exclusions — it will upload `.git/`, `CLAUDE.md`, and other excluded files to the public bucket. Always use the documented deploy script, which uses explicit paths in the `cp` steps for this reason.
+- **Do not** run `gsutil cp -r website/` (with `website/` as the sole source) — it will upload all files including any in-progress pages. Always use the documented deploy script, which lists explicit paths in the `cp` steps.
 
 ---
 
@@ -200,7 +206,7 @@ Requires Node.js 20+ and Python 3 (Python is used to serve the site locally duri
 | `npm run test:html` | html-validate | Malformed markup, missing `alt` text, invalid attributes |
 | `npm run test:a11y` | Playwright + axe-core | WCAG 2.1 AA violations on all five pages |
 | `npm run test:lighthouse` | Lighthouse CI | Performance, accessibility, best practices, SEO scores |
-| `lychee --config .lychee.toml *.html` | lychee | Broken internal and external links |
+| `lychee --config .lychee.toml website/*.html` | lychee | Broken internal and external links |
 
 Lychee requires a separate binary install (see [lychee releases](https://github.com/lycheeverse/lychee/releases)); the other three run via `npm`.
 
@@ -213,7 +219,7 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 - `.htmlvalidate.json` — html-validate rules; `void-style: selfclose` matches Bootstrap 3's `/>` syntax.
 - `.lychee.toml` — excludes sites that block automated crawlers or return unreliable results (Facebook, Instagram, LinkedIn, Yelp, claude.ai, icesymmetrics.com, glendale.edu).
 - `.lighthouserc.json` — per-page URL list and score thresholds.
-- `playwright.config.js` — spins up `python3 -m http.server 3000` before tests run.
+- `playwright.config.js` — spins up `python3 -m http.server 3000 --directory website` before tests run.
 
 ---
 
@@ -224,7 +230,7 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 2. Update the `<title>`, `<link rel="canonical">`, and Open Graph / Twitter Card meta tags.
 3. Update the navbar `active` class.
 4. Add the new page's nav link to the navbar in **all** other HTML files.
-5. Place any new images under `assets/<section>/`.
+5. Place any new images under `website/assets/<section>/`.
 6. Add the new page to the `cp -z` deploy command in step 2 (both in `README.md` and `CLAUDE.md`).
 7. Add the new page's URL to `sitemap.xml`.
 
@@ -232,7 +238,7 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 Open the relevant HTML file and edit the content inside the main `col-md-8` content column. Avoid changing the surrounding Bootstrap scaffold.
 
 ### Add or change styles
-Edit `bootstrap-css/theme.css`. Do not create new CSS files.
+Edit `website/css/theme.css`. Do not create new CSS files.
 
 ### Run tests
 See the **Testing** section above. Run `npm run test:html` and `npm run test:a11y` locally before pushing to catch issues early.

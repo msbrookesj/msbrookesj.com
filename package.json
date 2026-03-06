@@ -3,7 +3,7 @@
   "description": "Test tooling for the static site — not part of the site itself",
   "private": true,
   "scripts": {
-    "test:html": "html-validate *.html",
+    "test:html": "html-validate website/*.html",
     "test:a11y": "playwright test",
     "test:lighthouse": "lhci autorun"
   },
