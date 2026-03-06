@@ -109,7 +109,14 @@ footer a {
   outline-offset: 2px;
 }
 
-/* Jumbotron has a #eeeeee background; Bootstrap's default link #337ab7 gives only 3.92:1 contrast there.
+/* Bootstrap 5 removed .page-header; restore the BS3 styling */
+.page-header {
+  padding-bottom: 9px;
+  margin: 40px 0 20px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Jumbotron has a #eeeeee background; Bootstrap 5's default link #0d6efd gives only ~3.2:1 contrast there.
    Override to a darker shade that meets 4.5:1 on #eeeeee. */
 .jumbotron a {
   color: #1a5276;
