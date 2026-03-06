@@ -9,9 +9,13 @@ timeout = 20
 # Accept these HTTP status codes as valid (429 = rate-limited but reachable)
 accept = [200, 206, 429]
 
-# Exclude social media sites that actively block automated crawlers
+# Exclude social media sites and other sites that actively block automated crawlers
 exclude = [
   "https://www\\.facebook\\.com",
   "https://www\\.instagram\\.com",
   "https://www\\.linkedin\\.com",
+  "https://claude\\.ai",
+  "https://www\\.icesymmetrics\\.com",
+  "https://www\\.glendale\\.edu",
+  "https://www\\.yelp\\.com",
 ]
