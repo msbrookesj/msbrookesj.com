@@ -10,6 +10,18 @@ A personal portfolio website for msbrookesj (Brooke Ryan), hosted as a static si
 
 ---
 
+## Authoritative Hostname
+
+**The canonical domain for this website is `https://www.msbrookesj.com/`.**
+
+All absolute URLs in HTML pages (canonical tags, Open Graph / Twitter Card meta tags) and in `sitemap.xml` **must** use `https://www.msbrookesj.com/` as the base. Other domains such as `b1ryan.com` are aliases that redirect to this authoritative hostname.
+
+The GCS bucket is named `b1ryan.com` — that is intentional and must remain as-is. The bucket name has no bearing on the canonical URLs used within the site's HTML and sitemap.
+
+> **Common mistake to avoid:** Do not use `b1ryan.com` or any other alias as the hostname in `<link rel="canonical">`, `og:url`, `og:image`, `twitter:image`, or `sitemap.xml`. Always use `www.msbrookesj.com`.
+
+---
+
 ## Repository Structure
 
 ```
@@ -86,7 +98,7 @@ There is no Sass/Less, no TypeScript, no JS framework, and no server-side code. 
 
 Every HTML page follows the same structural pattern:
 
-1. **`<head>`** — `bootstrap.min.css`, `bootstrap-theme.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, and Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`). Do not add or remove stylesheets without applying the same change to all pages.
+1. **`<head>`** — `bootstrap.min.css`, `bootstrap-theme.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, and Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`). `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages. **All absolute URLs in these tags must use `https://www.msbrookesj.com/` — never `b1ryan.com` or any other alias.**
 2. **Fixed top navbar** — Links to About, Professional, Academic, Athlete. Active page highlighted with `class="active"`.
 3. **Main content** — Typically two Bootstrap columns: `col-md-8` (text) and `col-md-4` (image).
 4. **Footer** — Three-column flexbox layout: social media icons on the left (LinkedIn, Instagram, Facebook, YouTube, GitHub) with a "FIND ME" label above them, copyright centered, and brand/tech icons on the right (Bootstrap, Font Awesome, Google Cloud, Claude) with a "BUILT WITH" label above them.
@@ -186,6 +198,7 @@ User-specific overrides belong in `.claude/settings.local.json`, which is gitign
 - **Do not** push directly to `main`/`master` without a feature branch.
 - **Do not** run `gsutil rsync -d` without verifying the local state matches intent — the `-d` flag deletes remote files.
 - **Do not** run `gsutil cp -r website/` (with `website/` as the sole source) — it will upload all files including any in-progress pages. Always use the documented deploy script, which lists explicit paths in the `cp` steps.
+- **Do not** use `b1ryan.com` or any other alias as the domain in `<link rel="canonical">`, Open Graph / Twitter Card tags, or `sitemap.xml`. The authoritative hostname is `www.msbrookesj.com`. The GCS bucket name `b1ryan.com` is an infrastructure detail and must not appear in site content URLs.
 
 ---
 
