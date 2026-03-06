@@ -48,7 +48,7 @@ CI runs all four checks automatically on every push and pull request via GitHub 
 
 ```bash
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d website/ gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" website/404.html website/about.html website/academic.html website/athlete.html website/index.html website/professional.html gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" website/404.html website/about.html website/academic.html website/athlete.html website/index.html website/license.html website/professional.html gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" website/css/ website/dependencies/ gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gcloud compute url-maps invalidate-cdn-cache ryanfam18-com --global --path "/*"
 ```
