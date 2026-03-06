@@ -40,10 +40,9 @@ msbrookesj.com/
 │   │   └── theme.css               # Footer layout, social icon hover colors, .page-image, .section-card
 │   │
 │   ├── dependencies/               # Third-party libraries (vendored)
-│   │   ├── bootstrap/              # Bootstrap 3.3.5 framework
-│   │   │   ├── css/                # bootstrap.min.css, bootstrap-theme.min.css, etc.
-│   │   │   ├── js/                 # bootstrap.min.js
-│   │   │   └── fonts/              # Glyphicons webfonts
+│   │   ├── bootstrap/              # Bootstrap 5.3.3 framework
+│   │   │   ├── css/                # bootstrap.min.css
+│   │   │   └── js/                 # bootstrap.bundle.min.js (includes Popper)
 │   │   ├── font-awesome/           # Font Awesome icon library
 │   │   │   ├── css/                # fontawesome.min.css, brands.min.css, solid.min.css
 │   │   │   └── webfonts/           # fa-brands-400.woff2, fa-solid-900.woff2
@@ -83,7 +82,7 @@ msbrookesj.com/
 | Layer | Technology | Notes |
 |-------|-----------|-------|
 | Markup | HTML5 | Hand-authored, no templating engine |
-| Styling | Bootstrap 3.3.5 | Vendored under `website/dependencies/bootstrap/`; custom overrides in `website/css/` |
+| Styling | Bootstrap 5.3.3 | Vendored under `website/dependencies/bootstrap/`; custom overrides in `website/css/` |
 | Icons | Font Awesome 7.x | Locally hosted under `website/dependencies/font-awesome/` |
 | JS | jQuery (minified) + Bootstrap JS | Vendored; no custom application JS |
 | Build | **None** | No bundler, no preprocessor |
@@ -98,7 +97,7 @@ There is no Sass/Less, no TypeScript, no JS framework, and no server-side code. 
 
 Every HTML page follows the same structural pattern:
 
-1. **`<head>`** — `bootstrap.min.css`, `bootstrap-theme.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, and Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`). `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages. **All absolute URLs in these tags must use `https://www.msbrookesj.com/` — never `b1ryan.com` or any other alias.**
+1. **`<head>`** — `bootstrap.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, and Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`). `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages. **All absolute URLs in these tags must use `https://www.msbrookesj.com/` — never `b1ryan.com` or any other alias.**
 2. **Fixed top navbar** — Links to About, Professional, Academic, Athlete. Active page highlighted with `class="active"`.
 3. **Main content** — Typically two Bootstrap columns: `col-md-8` (text) and `col-md-4` (image).
 4. **Footer** — Three-column flexbox layout: social media icons on the left (LinkedIn, Instagram, Facebook, YouTube, GitHub) with a "FIND ME" label above them, copyright centered, and brand/tech icons on the right (Bootstrap, Font Awesome, Google Cloud, Claude) with a "BUILT WITH" label above them.
@@ -129,7 +128,7 @@ Each page sets its own nav item as active. When adding a new page or editing the
 - All images live under `website/assets/<section>/`.
 - Format: JPEG (`.jpg`).
 - Images are referenced with relative paths from the page (e.g., `assets/athlete/photo.jpg`).
-- Sidebar images (in `.col-md-4`) use Bootstrap's `img-responsive` class, which applies `max-width: 100%` so they scale down on small screens. Always include explicit `width` and `height` attributes matching the image's intrinsic pixel dimensions — this lets the browser reserve the correct space before the image loads, preventing layout shift (CLS). These attributes do not break responsiveness because `img-responsive` overrides the rendered size.
+- Sidebar images (in `.col-md-4`) use Bootstrap's `img-fluid` class, which applies `max-width: 100%; height: auto` so they scale down on small screens. Always include explicit `width` and `height` attributes matching the image's intrinsic pixel dimensions — this lets the browser reserve the correct space before the image loads, preventing layout shift (CLS). These attributes do not break responsiveness because `img-fluid` overrides the rendered size.
 - No image processing pipeline — add images as-is.
 
 ### Image Licensing and EXIF Policy
@@ -142,7 +141,7 @@ All images must have EXIF metadata set correctly before being committed. Use `pi
 
 **Third-party images** — preserve any existing `Copyright` and `Artist` fields exactly as provided by the original photographer. Do **not** overwrite third-party copyright with Brooke's name. Third-party images must be credited in `website/license.html` under "Photography Credits".
 
-Currently, `website/assets/athlete/slideshow/2024-02-21-{1–9}.jpg` are © KrPhotogs Photography LLC and are credited accordingly in `license.html`.
+Currently, `website/assets/athlete/slideshow/2024-02-21-{1–10}.jpg` are © KrPhotogs Photography LLC and are credited accordingly in `license.html`.
 
 **Location and device info** — strip the following EXIF fields from all images before committing:
 - `GPS` IFD (coordinates)
@@ -224,7 +223,7 @@ User-specific overrides belong in `.claude/settings.local.json`, which is gitign
 ## What NOT to Do
 
 - **Do not** add a bundler, preprocessor, or application-level npm dependencies. The `package.json` is for test tooling only.
-- **Do not** upgrade Bootstrap or jQuery without testing all pages — Bootstrap 3 and 4/5 have breaking API differences.
+- **Do not** upgrade Bootstrap (currently 5.3.3) without testing all pages — Bootstrap has had breaking API changes between major versions.
 - **Do not** add inline `<script>` or `<style>` blocks to HTML pages.
 - **Do not** push directly to `main`/`master` without a feature branch.
 - **Do not** run `gsutil rsync -d` without verifying the local state matches intent — the `-d` flag deletes remote files.
@@ -261,7 +260,7 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 
 ### Configuration files
 
-- `.htmlvalidate.json` — html-validate rules; `void-style: selfclose` matches Bootstrap 3's `/>` syntax.
+- `.htmlvalidate.json` — html-validate rules; `void-style: selfclose` enforces self-closing void elements (e.g. `<meta ... />`).
 - `.lychee.toml` — excludes sites that block automated crawlers or return unreliable results (Facebook, Instagram, LinkedIn, Yelp, claude.ai, icesymmetrics.com, glendale.edu).
 - `.lighthouserc.json` — per-page URL list and score thresholds.
 - `playwright.config.js` — spins up `python3 -m http.server 3000 --directory website` before tests run.

@@ -7,7 +7,7 @@ This is my little slice of the internet — built by hand, hosted in the cloud.
 
 ![CI](https://github.com/msbrookesj/msbrookesj.com/actions/workflows/test.yml/badge.svg)
 ![HTML5](https://img.shields.io/badge/HTML5-static-orange)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-3.3.5-7952B3)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.3-7952B3)
 ![Hosted on GCS](https://img.shields.io/badge/hosted-Google%20Cloud%20Storage-4285F4)
 
 **Authoritative hostname:** `https://www.msbrookesj.com/` — all canonical URLs, Open Graph tags, and `sitemap.xml` entries must use this domain. Other domains (e.g. `b1ryan.com`) are aliases that redirect here. The GCS bucket is named `b1ryan.com` for historical reasons and stays as-is.
