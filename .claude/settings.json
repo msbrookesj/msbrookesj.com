@@ -4,6 +4,7 @@
       "Bash(/Volumes/Source/google-cloud-sdk/bin/gsutil rsync:*)",
       "Bash(/Volumes/Source/google-cloud-sdk/bin/gsutil help:*)",
       "Bash(/Volumes/Source/google-cloud-sdk/bin/gsutil:*)",
+      "Bash(/Volumes/Source/google-cloud-sdk/bin/gcloud compute url-maps invalidate-cdn-cache:*)",
       "Bash(grep:*)"
     ]
   }
