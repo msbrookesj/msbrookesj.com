@@ -31,3 +31,17 @@ Notices:
   privacy, or moral rights may limit how you use the material.
 
 Full license text: https://creativecommons.org/licenses/by-nc/4.0/legalcode
+
+---
+
+Third-Party Dependencies
+-------------------------
+This license applies only to original content authored by Brooke Ryan — including
+HTML structure, CSS, written text, and original images. It does not cover vendored
+third-party libraries in website/dependencies/, which retain their own licenses:
+
+  Bootstrap 3.3.5       MIT License (Twitter, Inc.)
+  Font Awesome 7.2.0    Icons: CC BY 4.0 / Fonts: SIL OFL 1.1 / Code: MIT (Fonticons, Inc.)
+  jQuery 1.11.3         MIT License (jQuery Foundation, Inc.)
+  html5shiv 3.7.2       MIT License (multiple authors)
+  Respond.js 1.4.2      MIT License (Scott Jehl)
