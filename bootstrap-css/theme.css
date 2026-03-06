@@ -97,6 +97,12 @@ p a, li a {
   text-decoration: underline;
 }
 
+/* Explicit focus ring so keyboard users always see a visible indicator (WCAG 2.4.7) */
+:focus-visible {
+  outline: 3px solid #0077B5;
+  outline-offset: 2px;
+}
+
 /* Jumbotron has a #eeeeee background; Bootstrap's default link #337ab7 gives only 3.92:1 contrast there.
    Override to a darker shade that meets 4.5:1 on #eeeeee. */
 .jumbotron a {
