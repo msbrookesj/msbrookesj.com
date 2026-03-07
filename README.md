@@ -1,11 +1,11 @@
 # Hi, I'm Brooke 👋
 
-<img src="favicon.svg" width="80" height="80" alt="BR monogram logo" align="right"/>
-
 *The Professional. The Academic. The Athlete. The Mom.*
 
 Software engineer by day, mom to two amazing kids, figure skater by heart, perpetual student always.
 This is my little slice of the internet — built by hand, hosted in the cloud.
+
+<img src="favicon.svg" width="80" height="80" alt="BR monogram logo"/>
 
 ![CI](https://github.com/msbrookesj/msbrookesj.com/actions/workflows/test.yml/badge.svg)
 ![HTML5](https://img.shields.io/badge/HTML5-static-orange)
