@@ -34,7 +34,7 @@ jobs:
       - name: Sync files
         run: gsutil -m rsync -r -d website/ gs://b1ryan.com/
 
-      - name: Upload with gzip encoding
+      - name: Upload HTML with gzip encoding
         run: |
           gsutil -m cp -z "html,css,js" \
             website/404.html \
@@ -45,6 +45,9 @@ jobs:
             website/license.html \
             website/professional.html \
             gs://b1ryan.com/
+
+      - name: Upload CSS and JS with gzip encoding
+        run: gsutil -m cp -r -z "css,js" website/css/ website/dependencies/ gs://b1ryan.com/
 
       - name: Invalidate CDN cache
         run: gcloud compute url-maps invalidate-cdn-cache ryanfam18-com --global --path "/*"
