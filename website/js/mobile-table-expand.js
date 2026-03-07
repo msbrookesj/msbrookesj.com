@@ -37,9 +37,10 @@
   function buildDetailRow(row, indices, headerRow) {
     var lines = indices.map(function (i) {
       var label = (headerRow.cells[i] && headerRow.cells[i].textContent.trim()) || '';
-      var value = (row.cells[i]       && row.cells[i].innerHTML.trim())         || '\u2014';
+      var value = (row.cells[i]       && row.cells[i].innerHTML.trim())         || '';
+      if (!value) { return ''; }
       return '<div><strong>' + label + ':</strong>\u00a0' + value + '</div>';
-    });
+    }).filter(function (line) { return line !== ''; });
 
     var tr = document.createElement('tr');
     tr.className = DETAIL_CLASS;

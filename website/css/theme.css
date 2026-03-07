@@ -133,6 +133,13 @@ footer {
    The aria-expanded highlight rule below keeps the parent row highlighted
    while the gallery is open. */
 
+/* Keep the View Photos button visually pressed while the gallery is open */
+.btn-outline-secondary[aria-expanded="true"] {
+  background-color: #6c757d;
+  color: #fff;
+  border-color: #6c757d;
+}
+
 /* Keep the hover highlight on a row while its detail row is open */
 .table-hover > tbody > tr[aria-expanded="true"] > * {
   --bs-table-color-state: var(--bs-table-hover-color);
