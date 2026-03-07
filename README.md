@@ -8,6 +8,7 @@ This is my little slice of the internet — built by hand, hosted in the cloud.
 <img src="favicon.svg" width="80" height="80" alt="BR monogram logo"/>
 
 ![CI](https://github.com/msbrookesj/msbrookesj.com/actions/workflows/test.yml/badge.svg)
+![Deploy](https://github.com/msbrookesj/msbrookesj.com/actions/workflows/deploy.yml/badge.svg)
 ![HTML5](https://img.shields.io/badge/HTML5-static-orange)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.3-7952B3)
 ![Hosted on GCS](https://img.shields.io/badge/hosted-Google%20Cloud%20Storage-4285F4)
@@ -42,11 +43,15 @@ npm run test:lighthouse
 lychee --config .lychee.toml website/*.html
 ```
 
-CI runs all four checks automatically on every push and pull request via GitHub Actions.
+CI runs all four checks automatically on every push and pull request via GitHub Actions. Merging to `main` triggers an automatic deploy via `.github/workflows/deploy.yml`.
 
 ---
 
 ## Publish
+
+Merging to `main` deploys automatically via GitHub Actions using the `GCP_SA_KEY` secret.
+
+**Manual deploy** (fallback or out-of-band):
 
 ```bash
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d website/ gs://b1ryan.com/ && \
