@@ -24,6 +24,18 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/precommit-support-files.sh",
+            "statusMessage": "Checking supporting files..."
+          }
+        ]
+      }
     ]
   }
 }

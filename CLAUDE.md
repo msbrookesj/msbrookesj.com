@@ -83,7 +83,8 @@ msbrookesj.com/
 ├── .claude/
 │   ├── settings.json               # Project-shared Claude Code permissions and hooks
 │   ├── hooks/
-│   │   └── session-start.sh        # SessionStart hook: environment detection and setup
+│   │   ├── session-start.sh            # SessionStart hook: environment detection and setup
+│   │   └── precommit-support-files.sh  # PreToolUse hook: checks supporting files before git commit
 │   └── rules/                      # Path-scoped rules (loaded only when editing matching files)
 │       ├── table-conventions.md    # Mobile-responsive table patterns and row-expand behaviour
 │       ├── structured-data.md      # JSON-LD Person schema for index.html and about.html
@@ -226,6 +227,12 @@ The project uses a `SessionStart` hook (`.claude/hooks/session-start.sh`) to det
 This means sessions on Claude Code on the web are self-bootstrapping — no manual setup is needed before running tests.
 
 **Deploy commands** (`gsutil`, `gcloud`) use absolute paths specific to the local machine (`/Volumes/Source/google-cloud-sdk/bin/`). These are only available locally and will not work on Claude Code on the web. Deployments should only be done from the local environment.
+
+### Pre-Commit Supporting-File Check
+
+A `PreToolUse` hook (`.claude/hooks/precommit-support-files.sh`) fires before every `Bash` tool call. It detects `git commit` commands and, when one is found, compares the cumulative branch diff (all commits since the last evaluation plus staged changes) against the supporting-files table above. If a required file appears to be missing from the changeset, the hook prints a warning listing the files that may need updating.
+
+The hook tracks its progress via `.claude/.precommit-last-evaluated` (gitignored), which stores the SHA of the last commit that passed without warnings. This avoids re-checking changes that have already been evaluated and accepted.
 
 ---
 
