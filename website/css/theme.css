@@ -69,7 +69,7 @@ footer {
   footer {
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 16px;
   }
   .footer-left { order: 2; flex: none; align-items: center; }
   .footer-copyright { order: 1; flex: none; }
@@ -83,6 +83,24 @@ footer {
 .page-image img {
   display: block;
   margin: 20px auto;
+}
+
+/* Sidebar image stays visible while scrolling long content pages (desktop only) */
+@media (min-width: 768px) {
+  .theme-showcase .col-md-4 .page-image {
+    position: sticky;
+    top: 80px; /* 70px fixed navbar + 10px breathing room */
+  }
+}
+
+/* Athlete page: breathing room after the photo gallery collapses back */
+.row-gallery {
+  margin-bottom: 1.5rem;
+}
+
+/* Academic History anchor targets: offset scroll position for the fixed navbar */
+.theme-showcase h3[id] {
+  scroll-margin-top: 80px;
 }
 
 .section-card {
