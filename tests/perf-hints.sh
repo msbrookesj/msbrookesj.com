@@ -64,6 +64,18 @@ for page in "${ALL_PAGES[@]}"; do
   check_present "$page" \
     'rel="preload"[^>]*fa-solid-900\.woff2' \
     'Font Awesome solid font is preloaded'
+
+  # Font Awesome CSS must be loaded async (rel=preload as=style with onload
+  # swap) so it does not block the initial render on mobile.
+  check_present "$page" \
+    'rel="preload"[^>]*fontawesome\.min\.css[^>]*as="style"' \
+    'Font Awesome CSS loaded async (fontawesome.min.css)'
+  check_present "$page" \
+    'rel="preload"[^>]*brands\.min\.css[^>]*as="style"' \
+    'Font Awesome CSS loaded async (brands.min.css)'
+  check_present "$page" \
+    'rel="preload"[^>]*solid\.min\.css[^>]*as="style"' \
+    'Font Awesome CSS loaded async (solid.min.css)'
 done
 
 echo ""

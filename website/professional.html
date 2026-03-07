@@ -38,10 +38,15 @@
         <link rel="preload" href="dependencies/font-awesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <link rel="preload" href="dependencies/font-awesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
 
-        <!-- Font Awesome icons -->
-        <link rel="stylesheet" href="dependencies/font-awesome/css/fontawesome.min.css" />
-        <link rel="stylesheet" href="dependencies/font-awesome/css/brands.min.css" />
-        <link rel="stylesheet" href="dependencies/font-awesome/css/solid.min.css" />
+        <!-- Font Awesome icons — loaded async to avoid render-blocking -->
+        <link rel="preload" href="dependencies/font-awesome/css/fontawesome.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+        <link rel="preload" href="dependencies/font-awesome/css/brands.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+        <link rel="preload" href="dependencies/font-awesome/css/solid.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+        <noscript>
+            <link rel="stylesheet" href="dependencies/font-awesome/css/fontawesome.min.css" />
+            <link rel="stylesheet" href="dependencies/font-awesome/css/brands.min.css" />
+            <link rel="stylesheet" href="dependencies/font-awesome/css/solid.min.css" />
+        </noscript>
         
     </head>
     
