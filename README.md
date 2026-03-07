@@ -45,6 +45,18 @@ lychee --config .lychee.toml website/*.html
 
 CI runs all four checks automatically on every push and pull request via GitHub Actions. Merging to `main` triggers an automatic deploy via `.github/workflows/deploy.yml`.
 
+### Keeping supporting files in sync
+
+Before committing, update all applicable supporting files in the same commit:
+
+| File | Update when… |
+|------|--------------|
+| `README.md` | Deploy commands change (new page in `cp -z` step), dev workflow changes |
+| `CLAUDE.md` | Any of the above, plus new conventions, page structure changes, or AI-guidance rules |
+| `website/sitemap.xml` | A page is added or removed |
+| `.lighthouserc.json` | A page is added or removed |
+| `website/license.html` | A third-party image is added or removed |
+
 ---
 
 ## Publish
