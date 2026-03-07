@@ -34,6 +34,10 @@
         <!-- Custom styles for this template -->
         <link href="css/theme.css" rel="stylesheet" />
 
+        <!-- Preload Font Awesome webfonts to break the CSS→font dependency chain -->
+        <link rel="preload" href="dependencies/font-awesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <link rel="preload" href="dependencies/font-awesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
         <!-- Font Awesome icons -->
         <link rel="stylesheet" href="dependencies/font-awesome/css/fontawesome.min.css" />
         <link rel="stylesheet" href="dependencies/font-awesome/css/brands.min.css" />
@@ -107,7 +111,7 @@
                 </div>
                 <div class="col-md-4">
                     <p class="page-image">
-                    <img src="assets/academic/computersAndChipotle.jpg" class="img-fluid" alt="Brooke with her laptop and Chipotle, her two favorite things" fetchpriority="high" width="400" height="533" /><br />My two favorite things;&nbsp;<strong>Computer Science&nbsp;</strong>&amp;&nbsp;<strong>Chipotle</strong>! There isn't a computer science problem that I haven't been able to figure out with a full Mr. Pibb and my crispy tacos!</p>
+                    <img src="assets/academic/computersAndChipotle.jpg" class="img-fluid" alt="Brooke with her laptop and Chipotle, her two favorite things" loading="lazy" width="400" height="533" /><br />My two favorite things;&nbsp;<strong>Computer Science&nbsp;</strong>&amp;&nbsp;<strong>Chipotle</strong>! There isn't a computer science problem that I haven't been able to figure out with a full Mr. Pibb and my crispy tacos!</p>
                 </div>
             </div>
             <div class="row">
@@ -695,6 +699,6 @@
         <!-- Bootstrap core JavaScript
          ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="dependencies/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="dependencies/bootstrap/js/bootstrap.bundle.min.js" defer></script>
     </body>
 </html>
