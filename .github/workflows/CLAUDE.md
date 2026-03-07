@@ -50,7 +50,7 @@ Each run pushes to its own uniquely-named branch (`screenshots/pr-N-<sha>`), so 
 
 ### 3. HEAD-staleness guard (description update)
 
-Before updating the PR description, the workflow checks whether `github.sha` still matches the PR's `headRefOid`. If a newer commit has been pushed since this run started, the description update is **skipped** — the newer run will write the final listing.
+Before updating the PR description, the workflow checks whether `PR_HEAD_SHA` (set to `github.event.pull_request.head.sha`) still matches the PR's `headRefOid`. If a newer commit has been pushed since this run started, the description update is **skipped** — the newer run will write the final listing.
 
 ---
 
@@ -112,6 +112,14 @@ This returns all refs matching the prefix. The short SHA is extracted from the b
 
 Screenshots are pushed as orphan branches (no parent commit, no repo files — only the `screenshots/` directory). This keeps the branches lightweight and avoids polluting the repo's commit history.
 
+### Never override built-in GitHub Actions env vars
+
+GitHub Actions sets default environment variables like `GITHUB_SHA`, `GITHUB_REF`, etc. at the workflow level. Overriding these in a step's `env:` block may not take effect reliably — the built-in value can shadow the override, causing silent bugs.
+
+**Concrete example:** For `pull_request` events, the built-in `GITHUB_SHA` is the **merge commit SHA**, not the PR head commit SHA. A previous version of this workflow set `GITHUB_SHA: ${{ github.event.pull_request.head.sha }}` in the step env, expecting it to override the built-in. It didn't — the staleness guard compared the merge commit SHA against `headRefOid` (the PR head), they never matched, and both PR description updates were silently skipped.
+
+**Fix:** Use a custom env var name (e.g. `PR_HEAD_SHA`) that doesn't collide with any built-in. This applies to all GitHub Actions workflows, not just this one.
+
 ### Stale `screenshots` ref cleanup
 
 A bare `screenshots` ref (without the `/pr-N-...` suffix) would cause a git namespace conflict (directory vs file). The push step proactively deletes any such ref before pushing.
@@ -131,7 +139,7 @@ When modifying these workflows, verify:
 - [ ] Every `gh pr` / `gh pr edit` call passes `-R $REPO`
 - [ ] The concurrency group key includes the PR number (or `github.ref` for `main` pushes)
 - [ ] `cancel-in-progress` is `false` — all commits must get screenshots
-- [ ] The HEAD guard compares `github.sha` to `headRefOid` before **both** description updates (in-progress and final)
+- [ ] The HEAD guard compares `PR_HEAD_SHA` (set to `github.event.pull_request.head.sha`) to `headRefOid` before **both** description updates (in-progress and final). **Do not** use the built-in `GITHUB_SHA` env var — for `pull_request` events it is the merge commit SHA, not the PR head, and overriding a built-in env var may not take effect reliably.
 - [ ] The description marker (`<!-- screenshots-bot -->`) is used for idempotent replacement
 - [ ] The cleanup workflow deletes using the `screenshots/pr-<N>-` prefix (not an exact branch name)
 - [ ] Branch names use the 7-character short SHA (`${SHA::7}`)

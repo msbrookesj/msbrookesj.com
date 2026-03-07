@@ -32,13 +32,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
-          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           import json, re, subprocess, os
 
           pr_num  = os.environ['PR_NUMBER']
           repo    = os.environ['REPO']
-          run_sha = os.environ['GITHUB_SHA']
+          run_sha = os.environ['PR_HEAD_SHA']
           short   = run_sha[:7]
 
           def gh(*args):
@@ -137,13 +137,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
-          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           import json, re, subprocess, os
 
           pr_num  = os.environ['PR_NUMBER']
           repo    = os.environ['REPO']
-          run_sha = os.environ['GITHUB_SHA']
+          run_sha = os.environ['PR_HEAD_SHA']
 
           # Helper — all gh CLI calls need -R because the prior step
           # ran "git checkout --orphan" which breaks local repo detection.

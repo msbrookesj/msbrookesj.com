@@ -22,9 +22,13 @@
   var DETAIL_CLASS     = 'table-row-detail';
   var EXPANDABLE_CLASS = 'table-row-expandable';
 
-  /** Return the 0-based column indices whose header cell is currently display:none */
+  /** Return the 0-based column indices whose header cell is currently display:none.
+   *  Columns whose <th> carries data-detail-exclude are skipped entirely — they
+   *  never appear in the mobile detail row (useful when the column's purpose is
+   *  already implied, e.g. a Media column whose gallery auto-expands on tap). */
   function hiddenIndices(headerRow) {
     return Array.from(headerRow.cells).reduce(function (acc, th, i) {
+      if (th.hasAttribute('data-detail-exclude')) { return acc; }
       if (window.getComputedStyle(th).display === 'none') { acc.push(i); }
       return acc;
     }, []);
