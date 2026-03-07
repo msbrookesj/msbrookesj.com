@@ -1,5 +1,7 @@
 # Hi, I'm Brooke 👋
 
+<img src="favicon.svg" width="80" height="80" alt="BR monogram logo" align="right"/>
+
 *The Professional. The Academic. The Athlete. The Mom.*
 
 Software engineer by day, mom to two amazing kids, figure skater by heart, perpetual student always.
