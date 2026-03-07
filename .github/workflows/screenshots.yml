@@ -77,15 +77,17 @@ jobs:
         run: |
           import json, re, subprocess, os
 
-          pr_num = os.environ['PR_NUMBER']
-          repo   = os.environ['REPO']
+          pr_num  = os.environ['PR_NUMBER']
+          repo    = os.environ['REPO']
           run_sha = os.environ['GITHUB_SHA']
 
+          # Helper — all gh CLI calls need -R because the prior step
+          # ran "git checkout --orphan" which breaks local repo detection.
+          def gh(*args):
+              return subprocess.check_output(['gh'] + list(args) + ['-R', repo], text=True)
+
           # ── Guard: skip if this commit is no longer HEAD ──
-          pr_json = subprocess.check_output(
-              ['gh', 'pr', 'view', pr_num, '--json', 'headRefOid,body'],
-              text=True)
-          pr_data  = json.loads(pr_json)
+          pr_data  = json.loads(gh('pr', 'view', pr_num, '--json', 'headRefOid,body'))
           head_sha = pr_data['headRefOid']
           body     = pr_data.get('body') or ''
 
@@ -95,34 +97,29 @@ jobs:
 
           # ── Enumerate all screenshot branches for this PR ──
           prefix = f"screenshots/pr-{pr_num}-"
-          refs_json = subprocess.check_output(
-              ['gh', 'api', f'repos/{repo}/git/matching-refs/heads/{prefix}'],
-              text=True)
-          refs = json.loads(refs_json)
+          refs = json.loads(
+              subprocess.check_output(
+                  ['gh', 'api', f'repos/{repo}/git/matching-refs/heads/{prefix}'],
+                  text=True))
 
           branches = []
           for r in refs:
               name = r['ref'].removeprefix('refs/heads/')
-              # Extract short SHA from branch name (last segment after last '-')
               sha = name.rsplit('-', 1)[-1]
               url = f'https://github.com/{repo}/tree/{name}/screenshots'
               is_head = run_sha.startswith(sha)
               branches.append((sha, name, url, is_head))
 
           # ── Build the screenshots section ──
-          head_sha_short = run_sha[:7]
-          lines = [f'| Commit | Screenshots |',
-                   f'| ------ | ----------- |']
+          lines = ['| Commit | Screenshots |',
+                   '| ------ | ----------- |']
           for sha, name, url, is_head in branches:
               label = f'**`{sha}`** (HEAD)' if is_head else f'`{sha}`'
               lines.append(f'| {label} | [View]({url}) |')
 
-          table = '\n'.join(lines)
+          table   = '\n'.join(lines)
           marker  = '<!-- screenshots-bot -->'
-          section = (
-              f'\n\n---\n{marker}\n'
-              f'**Screenshots**\n\n{table}'
-          )
+          section = f'\n\n---\n{marker}\n**Screenshots**\n\n{table}'
 
           if marker in body:
               body = re.sub(
@@ -133,5 +130,5 @@ jobs:
               f.write(body + section)
 
           subprocess.run(
-              ['gh', 'pr', 'edit', pr_num, '--body-file', '/tmp/pr_body.txt'],
+              ['gh', 'pr', 'edit', pr_num, '--body-file', '/tmp/pr_body.txt', '-R', repo],
               check=True)
