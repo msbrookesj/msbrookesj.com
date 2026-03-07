@@ -95,6 +95,19 @@ for page in "${SUBPAGES[@]}"; do
 done
 
 echo ""
+echo "-- athlete.html: mobile table layout --"
+# Tables must be wrapped in table-responsive to prevent horizontal scroll on mobile.
+check_present "website/athlete.html" \
+  'class="table-responsive"' \
+  'Competition table wrapped in table-responsive'
+
+# Non-essential columns must carry d-none d-md-table-cell so they collapse on
+# narrow screens.  Without this the table is too wide to fit a phone viewport.
+check_present "website/athlete.html" \
+  'd-none d-md-table-cell' \
+  'Non-essential table columns hidden on mobile (d-none d-md-table-cell)'
+
+echo ""
 if [ "$FAIL" -eq 0 ]; then
   echo "All checks passed."
 else
