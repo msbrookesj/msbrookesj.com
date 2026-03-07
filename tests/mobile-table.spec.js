@@ -165,9 +165,9 @@ test.describe('Athlete page — mobile row expansion', () => {
     await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
     // Gallery starts collapsed on mobile.
     await expect(page.locator('#gallery2024')).toBeHidden();
-    // Tap the 2023–24 row (last data row) — not on a link.
-    const lastDataRow = page.locator('table.table tbody tr').last();
-    await lastDataRow.click({ position: { x: 10, y: 10 } });
+    // Tap the 2023–24 row — not on a link.
+    const row2024 = page.locator('table.table tbody tr[data-bs-gallery="gallery2024"]');
+    await row2024.click({ position: { x: 10, y: 10 } });
     // Gallery should now be visible.
     await expect(page.locator('#gallery2024')).toBeVisible();
   });
@@ -175,11 +175,12 @@ test.describe('Athlete page — mobile row expansion', () => {
   test('tapping the expanded 2023–24 row on mobile collapses the gallery again', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
-    const lastDataRow = page.locator('table.table tbody tr').last();
-    await lastDataRow.click({ position: { x: 10, y: 10 } });
+    // Use the stable attribute selector — avoids re-resolving to the inserted detail row.
+    const row2024 = page.locator('table.table tbody tr[data-bs-gallery="gallery2024"]');
+    await row2024.click({ position: { x: 10, y: 10 } });
     await expect(page.locator('#gallery2024')).toBeVisible();
     // Tap again to collapse.
-    await lastDataRow.click({ position: { x: 10, y: 10 } });
+    await row2024.click({ position: { x: 10, y: 10 } });
     await expect(page.locator('#gallery2024')).toBeHidden();
   });
 
