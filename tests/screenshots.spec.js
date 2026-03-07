@@ -21,6 +21,16 @@ const PAGES_WITH_DISCLOSURES = [
   'athlete.html',
 ];
 
+// Convert fixed-position elements (e.g. the navbar) to absolute so they
+// anchor to the document top instead of the viewport during fullPage capture.
+async function pinFixedElements(tab) {
+  await tab.evaluate(() => {
+    for (const el of document.querySelectorAll('.fixed-top, .fixed-bottom')) {
+      el.style.position = 'absolute';
+    }
+  });
+}
+
 for (const page of ALL_PAGES) {
   for (const { name: device, viewport } of VIEWPORTS) {
     const slug = page.replace('.html', '');
@@ -29,6 +39,7 @@ for (const page of ALL_PAGES) {
       const context = await browser.newContext({ viewport });
       const tab = await context.newPage();
       await tab.goto(`/${page}`, { waitUntil: 'networkidle' });
+      await pinFixedElements(tab);
       await tab.screenshot({
         path: `screenshots/${slug}-${device}.png`,
         fullPage: true,
@@ -63,6 +74,7 @@ for (const page of PAGES_WITH_DISCLOSURES) {
       // Wait for all collapse animations to finish.
       await tab.waitForTimeout(500);
 
+      await pinFixedElements(tab);
       await tab.screenshot({
         path: `screenshots/${slug}-expanded-${device}.png`,
         fullPage: true,
