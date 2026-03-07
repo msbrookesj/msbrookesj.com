@@ -7,6 +7,12 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+# Serialize per PR so description updates never race.
+# Runs queue rather than cancel — every commit gets its screenshots.
+concurrency:
+  group: screenshots-pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
 jobs:
   screenshots:
     name: Capture Page Screenshots
@@ -31,11 +37,8 @@ jobs:
           path: screenshots/
           retention-days: 90
 
-      # PRs: push to screenshots/pr-<N>-<sha> and add a link to the PR
-      # description.  The commit hash in the branch name avoids race
-      # conditions when multiple pushes to the same PR trigger concurrent
-      # workflow runs — each run writes its own branch.
-      # Skipped for PRs from forks (no write access to this repo).
+      # PRs: push to screenshots/pr-<N>-<sha>.
+      # Each commit gets its own branch so the full history is preserved.
       - name: Push screenshots for PR
         id: push-screenshots
         if: github.event_name == 'pull_request'
@@ -46,20 +49,11 @@ jobs:
         run: |
           SHORT_SHA="${SHORT_SHA::7}"
           BRANCH="screenshots/pr-${PR_NUMBER}-${SHORT_SHA}"
-          PREFIX="screenshots/pr-${PR_NUMBER}-"
 
           # Delete any stale "screenshots" ref that would block the
           # "screenshots/pr-*" namespace (directory/file conflict).
           gh api "repos/${{ github.repository }}/git/refs/heads/screenshots" \
             -X DELETE 2>/dev/null || true
-
-          # Delete prior screenshot branches for this PR.
-          gh api "repos/${{ github.repository }}/git/matching-refs/heads/${PREFIX}" \
-            --jq '.[].ref' 2>/dev/null \
-          | while read -r ref; do
-              [ "$ref" = "refs/heads/${BRANCH}" ] && continue
-              gh api "repos/${{ github.repository }}/git/${ref}" -X DELETE 2>/dev/null || true
-            done
 
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -69,8 +63,9 @@ jobs:
           git commit -m "Screenshots for PR #${PR_NUMBER} @ ${SHORT_SHA}"
           git push --force origin screenshots-tmp:"${BRANCH}"
 
-      # Update PR description: append a screenshots link the first time,
-      # or replace the existing one on subsequent pushes.
+      # Update PR description with a table of all screenshot branches.
+      # Skipped if this run's commit is no longer the PR HEAD — a newer
+      # run is queued (or already ran) and will write the final listing.
       - name: Update PR description
         if: github.event_name == 'pull_request' && steps.push-screenshots.outcome == 'success'
         shell: python
@@ -80,22 +75,53 @@ jobs:
           REPO: ${{ github.repository }}
           GITHUB_SHA: ${{ github.sha }}
         run: |
-          import subprocess, re, os
+          import json, re, subprocess, os
 
           pr_num = os.environ['PR_NUMBER']
           repo   = os.environ['REPO']
-          sha    = os.environ['GITHUB_SHA'][:7]
-          branch = f'screenshots/pr-{pr_num}-{sha}'
-          url    = f'https://github.com/{repo}/tree/{branch}/screenshots'
+          run_sha = os.environ['GITHUB_SHA']
 
-          body = subprocess.check_output(
-              ['gh', 'pr', 'view', pr_num, '--json', 'body', '--jq', '.body // ""'],
-              text=True).strip()
+          # ── Guard: skip if this commit is no longer HEAD ──
+          pr_json = subprocess.check_output(
+              ['gh', 'pr', 'view', pr_num, '--json', 'headRefOid,body'],
+              text=True)
+          pr_data  = json.loads(pr_json)
+          head_sha = pr_data['headRefOid']
+          body     = pr_data.get('body') or ''
 
+          if run_sha != head_sha:
+              print(f"Stale run ({run_sha[:7]}) — PR HEAD is now {head_sha[:7]}. Skipping description update.")
+              raise SystemExit(0)
+
+          # ── Enumerate all screenshot branches for this PR ──
+          prefix = f"screenshots/pr-{pr_num}-"
+          refs_json = subprocess.check_output(
+              ['gh', 'api', f'repos/{repo}/git/matching-refs/heads/{prefix}'],
+              text=True)
+          refs = json.loads(refs_json)
+
+          branches = []
+          for r in refs:
+              name = r['ref'].removeprefix('refs/heads/')
+              # Extract short SHA from branch name (last segment after last '-')
+              sha = name.rsplit('-', 1)[-1]
+              url = f'https://github.com/{repo}/tree/{name}/screenshots'
+              is_head = run_sha.startswith(sha)
+              branches.append((sha, name, url, is_head))
+
+          # ── Build the screenshots section ──
+          head_sha_short = run_sha[:7]
+          lines = [f'| Commit | Screenshots |',
+                   f'| ------ | ----------- |']
+          for sha, name, url, is_head in branches:
+              label = f'**`{sha}`** (HEAD)' if is_head else f'`{sha}`'
+              lines.append(f'| {label} | [View]({url}) |')
+
+          table = '\n'.join(lines)
           marker  = '<!-- screenshots-bot -->'
           section = (
               f'\n\n---\n{marker}\n'
-              f'**Screenshots:** [View `{branch}` branch]({url}) — from `{sha}`'
+              f'**Screenshots**\n\n{table}'
           )
 
           if marker in body:

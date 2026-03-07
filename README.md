@@ -53,7 +53,7 @@ npm run screenshots
 lychee --config .lychee.toml website/*.html
 ```
 
-CI runs all six test checks automatically on every push and pull request via GitHub Actions. A separate screenshots workflow captures full-page screenshots of every page at desktop and mobile viewports, uploaded as downloadable artifacts (90-day retention). For pull requests it also pushes screenshots to a dedicated `screenshots/pr-<N>-<sha>` branch (commit-hash-suffixed to avoid race conditions) and appends a link to the PR description; old screenshot branches for the PR are cleaned up on each push and all are deleted when the PR closes. Merging to `main` triggers an automatic deploy via `.github/workflows/deploy.yml`.
+CI runs all six test checks automatically on every push and pull request via GitHub Actions. A separate screenshots workflow captures full-page screenshots of every page at desktop and mobile viewports, uploaded as downloadable artifacts (90-day retention). For pull requests it also pushes screenshots to a dedicated `screenshots/pr-<N>-<sha>` branch per commit and updates the PR description with a table of all screenshot branches (HEAD marked). Runs are serialized per PR via a concurrency group, and stale runs skip the description update. All screenshot branches are deleted when the PR closes. Merging to `main` triggers an automatic deploy via `.github/workflows/deploy.yml`.
 
 ### Keeping supporting files in sync
 
