@@ -34,6 +34,7 @@ jobs:
       # PRs: push to screenshots/pr-<N> and add a link to the PR description.
       # Skipped for PRs from forks (no write access to this repo).
       - name: Push screenshots for PR
+        id: push-screenshots
         if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -57,7 +58,7 @@ jobs:
       # Update PR description: append a screenshots link the first time,
       # or replace the existing one on subsequent pushes.
       - name: Update PR description
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.push-screenshots.outcome == 'success'
         shell: python
         env:
           GH_TOKEN: ${{ github.token }}
