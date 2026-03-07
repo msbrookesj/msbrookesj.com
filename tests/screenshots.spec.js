@@ -48,13 +48,16 @@ for (const page of PAGES_WITH_DISCLOSURES) {
       const tab = await context.newPage();
       await tab.goto(`/${page}`, { waitUntil: 'networkidle' });
 
-      // Click every collapse trigger (skip the navbar toggler).
+      // Click every visible collapse trigger (skip the navbar toggler and
+      // any triggers hidden at this viewport, e.g. desktop-only buttons).
       const triggers = tab.locator(
         '[data-bs-toggle="collapse"]:not(.navbar-toggler)'
       );
       const count = await triggers.count();
       for (let i = 0; i < count; i++) {
-        await triggers.nth(i).click();
+        if (await triggers.nth(i).isVisible()) {
+          await triggers.nth(i).click();
+        }
       }
 
       // Wait for all collapse animations to finish.

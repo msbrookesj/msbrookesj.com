@@ -44,7 +44,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout --orphan screenshots-tmp
           git rm -rf --cached . >/dev/null 2>&1 || true
-          git add screenshots/
+          git add -f screenshots/
           git commit -m "Screenshots for PR #${PR_NUMBER} @ ${GITHUB_SHA::7}"
           git push --force origin screenshots-tmp:"${BRANCH}"
 
@@ -97,6 +97,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout --orphan screenshots-tmp
           git rm -rf --cached . >/dev/null 2>&1 || true
-          git add screenshots/
+          git add -f screenshots/
           git commit -m "Screenshots from ${GITHUB_REF_NAME} @ ${GITHUB_SHA::7}"
           git push --force origin screenshots-tmp:screenshots
