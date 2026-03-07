@@ -34,6 +34,10 @@
         <!-- Custom styles for this template -->
         <link href="css/theme.css" rel="stylesheet" />
 
+        <!-- Preload Font Awesome webfonts to break the CSS→font dependency chain -->
+        <link rel="preload" href="dependencies/font-awesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <link rel="preload" href="dependencies/font-awesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
         <!-- Font Awesome icons — loaded async to avoid render-blocking -->
         <link rel="preload" href="dependencies/font-awesome/css/fontawesome.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
         <link rel="preload" href="dependencies/font-awesome/css/brands.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
@@ -174,6 +178,6 @@
         <!-- Bootstrap core JavaScript
          ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="dependencies/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="dependencies/bootstrap/js/bootstrap.bundle.min.js" defer></script>
     </body>
 </html>

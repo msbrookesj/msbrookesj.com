@@ -14,6 +14,7 @@ ALL_PAGES=(
   website/academic.html
   website/athlete.html
   website/404.html
+  website/license.html
 )
 
 # Pages where the sidebar image (col-md-4) stacks below a full column of
