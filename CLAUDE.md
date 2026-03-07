@@ -153,21 +153,22 @@ Every `<table>` in the site must be mobile-friendly. A table that overflows its 
 
 | Page | Table | Mobile strategy |
 |------|-------|----------------|
-| `athlete.html` | Competition gallery | `d-none d-md-table-cell` on Level and Location columns |
+| `athlete.html` | Competition gallery | `d-none d-md-table-cell` on Level and Location columns; 2023–24 row carries `data-bs-gallery="gallery2024"` so tapping on mobile auto-expands the photo carousel |
 | `academic.html` | 4 × course history | CSS `nth-child(4)` and `nth-child(5)` in `theme.css` hide Instructor and Academic Period columns; Academic Period appears in the row-expand detail row |
 | `license.html` | Dependencies | `table-responsive` only (4 short columns fit without hiding) |
 
 **Mobile row-expand (detail rows)** — `website/js/mobile-table-expand.js` is loaded on pages with tables. On mobile (< 768 px) it makes every `<tbody>` row tappable: tapping inserts a `<tr class="table-row-detail">` directly below the row, containing one `<div>` per hidden column formatted as `**Label:** value`. Key implementation notes:
 
 - Each hidden field is wrapped in its own `<div>` so fields appear on separate lines (not dot-joined on one line).
-- Cell values are read via `innerHTML` (not `textContent`) so links and Bootstrap collapse triggers inside hidden cells (e.g. a "View Photos" `<a data-bs-toggle="collapse">`) remain fully functional inside the detail row.
+- Cell values are read via `innerHTML` (not `textContent`) so links and other interactive elements inside hidden cells remain fully functional inside the detail row.
+- If a `<tr>` carries a `data-bs-gallery="<id>"` attribute, tapping to expand also shows the Bootstrap Collapse element with that id (and hides it again on collapse). The `.row-gallery.collapse` CSS class forces that element always visible on desktop via `theme.css`.
 - Tapping the expanded row a second time removes the detail row.
-- Resizing to desktop width (≥ 768 px) auto-collapses all open detail rows.
+- Resizing to desktop width (≥ 768 px) auto-collapses all open detail rows and their associated galleries.
 - Clicks on `<a>` or `<button>` elements inside a row pass through to their default handlers and do **not** trigger row expansion.
 
 **Regression guards** — two layers prevent regressions:
 - `tests/perf-hints.sh` — static grep checks that `table-responsive` wrappers and column-hiding patterns are present in each affected file.
-- `tests/mobile-table.spec.js` — Playwright tests that verify no horizontal overflow on **every** page at both mobile (375 px) and desktop (1024 px) viewports, plus per-page column-visibility assertions, and row-expand behaviour (tap to expand, per-field `<div>` lines, link preservation, tap to collapse, desktop no-expand guard).
+- `tests/mobile-table.spec.js` — Playwright tests that verify no horizontal overflow on **every** page at both mobile (375 px) and desktop (1024 px) viewports, plus per-page column-visibility assertions, and row-expand behaviour (tap to expand, per-field `<div>` lines, gallery auto-expand, tap to collapse, desktop no-expand guard).
 
 ---
 

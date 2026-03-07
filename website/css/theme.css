@@ -128,6 +128,14 @@ footer {
 /* ─── Mobile row-expand (mobile-table-expand.js) ────────────────────────────
    Detail row: appears below a tapped data row and shows the hidden columns   */
 
+/* Row-linked gallery: always visible on desktop (no expand trigger exists there);
+   on mobile it is toggled by mobile-table-expand.js via Bootstrap's Collapse API. */
+@media (min-width: 768px) {
+  .row-gallery.collapse {
+    display: block !important;
+  }
+}
+
 /* Keep the hover highlight on a row while its detail row is open */
 .table-hover > tbody > tr[aria-expanded="true"] > * {
   --bs-table-color-state: var(--bs-table-hover-color);

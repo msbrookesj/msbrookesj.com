@@ -160,33 +160,33 @@ test.describe('Athlete page — mobile row expansion', () => {
     await expect(page.locator('tr.table-row-detail')).toHaveCount(0);
   });
 
-  test('View Photos link is preserved as a working link when its cell is in the detail row', async ({ page }) => {
-    // This test verifies the innerHTML fix: if a cell containing a link ends up
-    // in the detail row the link is present and clickable (not stripped to plain text).
-    // We achieve this by temporarily hiding the Photos column via JS and re-triggering.
+  test('tapping the 2023–24 row on mobile auto-expands the photo gallery', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
-    // Hide the Photos column header so mobile-table-expand includes it in the detail row.
-    await page.evaluate(() => {
-      const th = document.querySelector('table.table thead tr th:last-child');
-      th.style.display = 'none';
-    });
-    // Tap the 2023–24 row (last row, which has the "View Photos" link).
+    // Gallery starts collapsed on mobile.
+    await expect(page.locator('#gallery2024')).toBeHidden();
+    // Tap the 2023–24 row (last data row) — not on a link.
     const lastDataRow = page.locator('table.table tbody tr').last();
     await lastDataRow.click({ position: { x: 10, y: 10 } });
-    const detailTd = page.locator('tr.table-row-detail td');
-    // The detail row must contain an <a> element (not plain text) for "View Photos".
-    await expect(detailTd.locator('a:has-text("View Photos")')).toHaveCount(1);
+    // Gallery should now be visible.
+    await expect(page.locator('#gallery2024')).toBeVisible();
   });
 
-  test('View Photos collapse link still works on mobile', async ({ page }) => {
+  test('tapping the expanded 2023–24 row on mobile collapses the gallery again', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
-    // The gallery is initially hidden.
+    const lastDataRow = page.locator('table.table tbody tr').last();
+    await lastDataRow.click({ position: { x: 10, y: 10 } });
+    await expect(page.locator('#gallery2024')).toBeVisible();
+    // Tap again to collapse.
+    await lastDataRow.click({ position: { x: 10, y: 10 } });
     await expect(page.locator('#gallery2024')).toBeHidden();
-    // Click the "View Photos" link directly.
-    await page.locator('a[href="#gallery2024"]').click();
-    // Bootstrap collapse should make the gallery visible.
+  });
+
+  test('photo gallery is visible on desktop without any interaction', async ({ page }) => {
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
+    // .row-gallery.collapse is forced display:block on desktop via theme.css.
     await expect(page.locator('#gallery2024')).toBeVisible();
   });
 });

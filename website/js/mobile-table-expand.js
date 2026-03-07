@@ -47,11 +47,30 @@
     return tr;
   }
 
+  /** Show the Bootstrap collapse element linked to this row via data-bs-gallery */
+  function showGallery(row) {
+    var id = row.getAttribute('data-bs-gallery');
+    if (!id) { return; }
+    var el = document.getElementById(id);
+    if (!el || !window.bootstrap) { return; }
+    bootstrap.Collapse.getOrCreateInstance(el, { toggle: false }).show();
+  }
+
+  /** Hide the Bootstrap collapse element linked to this row via data-bs-gallery */
+  function hideGallery(row) {
+    var id = row.getAttribute('data-bs-gallery');
+    if (!id) { return; }
+    var el = document.getElementById(id);
+    if (!el || !window.bootstrap) { return; }
+    bootstrap.Collapse.getOrCreateInstance(el, { toggle: false }).hide();
+  }
+
   /** Remove the detail row that follows this row, if present */
   function collapse(row) {
     var next = row.nextElementSibling;
     if (next && next.classList.contains(DETAIL_CLASS)) { next.remove(); }
     row.removeAttribute('aria-expanded');
+    hideGallery(row);
   }
 
   /** Toggle the detail row for a data row */
@@ -67,6 +86,7 @@
     } else {
       row.after(buildDetailRow(row, indices, headerRow));
       row.setAttribute('aria-expanded', 'true');
+      showGallery(row);
     }
   }
 
@@ -83,6 +103,7 @@
       tbody.querySelectorAll('.' + DETAIL_CLASS).forEach(function (r) { r.remove(); });
       tbody.querySelectorAll('[aria-expanded]').forEach(function (r) {
         r.removeAttribute('aria-expanded');
+        hideGallery(r);
       });
     });
 
