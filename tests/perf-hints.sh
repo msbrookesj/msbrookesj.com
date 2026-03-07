@@ -114,11 +114,15 @@ check_present "website/academic.html" \
   'class="table-responsive"' \
   'Course history tables wrapped in table-responsive'
 
-# The Instructor column (4th) is hidden via CSS nth-child in theme.css rather
-# than per-cell d-none classes (too many cells).  Verify the rule exists.
+# The Instructor (4th), Academic Period (5th), and Course Description (6th) columns
+# are hidden via CSS nth-child in theme.css rather than per-cell d-none classes
+# (too many cells).  Verify the rules exist.
 check_present "website/css/theme.css" \
   'nth-child\(4\)' \
   'Academic Instructor column hidden on mobile via CSS nth-child (theme.css)'
+check_present "website/css/theme.css" \
+  'nth-child\(6\)' \
+  'Academic Course Description column hidden on mobile via CSS nth-child (theme.css)'
 
 echo ""
 echo "-- license.html: mobile table layout --"
