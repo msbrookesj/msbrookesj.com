@@ -292,7 +292,7 @@ Key flags:
 
 - Work is done on feature branches prefixed with `claude/`.
 - Commit messages are imperative, short, and descriptive (e.g., `Add hover colors to social media icons`).
-- Pushing or opening a pull request triggers the GitHub Actions test suite (HTML validation, link check, accessibility, Lighthouse). There is no automatic deployment.
+- Pushing or opening a pull request triggers the GitHub Actions test suite (HTML validation, link check, accessibility, Lighthouse, YAML syntax, performance hints). There is no automatic deployment.
 - After merging to `main`, GitHub Actions deploys automatically via `.github/workflows/deploy.yml`. Manual deploy is only needed for out-of-band changes.
 - **Before opening a PR**, rebase the feature branch onto `main` (`git fetch origin main && git rebase origin/main`) to surface and resolve any conflicts locally before review.
 - **Related changes to the same files** should be in a single commit rather than split across multiple commits — this minimises the number of conflict hunks during a rebase.
@@ -359,7 +359,7 @@ Lychee requires a separate binary install (see [lychee releases](https://github.
 
 ### CI
 
-GitHub Actions (`.github/workflows/test.yml`) runs all four test jobs in parallel on every push and pull request. Accessibility score below 0.9 in Lighthouse fails the build; other Lighthouse scores are warnings.
+GitHub Actions (`.github/workflows/test.yml`) runs all six test jobs in parallel on every push and pull request. Accessibility score below 0.9 in Lighthouse fails the build; other Lighthouse scores are warnings.
 
 A separate workflow (`.github/workflows/screenshots.yml`) captures full-page screenshots of every page at desktop and mobile viewports on every push and pull request. Screenshots are uploaded as a `page-screenshots` artifact (90-day retention). For pull requests the workflow also pushes the screenshots to a dedicated `screenshots/pr-<N>` branch and appends a link to the PR description (replacing it on subsequent pushes). A companion workflow (`.github/workflows/screenshots-cleanup.yml`) deletes the `screenshots/pr-<N>` branch automatically when the PR is closed or merged. Non-PR pushes continue to update the shared `screenshots` branch.
 
