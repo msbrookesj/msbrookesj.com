@@ -5,7 +5,25 @@
       "Bash(/Volumes/Source/google-cloud-sdk/bin/gsutil help:*)",
       "Bash(/Volumes/Source/google-cloud-sdk/bin/gsutil:*)",
       "Bash(/Volumes/Source/google-cloud-sdk/bin/gcloud compute url-maps invalidate-cdn-cache:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run screenshots:*)",
+      "Bash(npm install:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(python3 -c:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-start.sh"
+          }
+        ]
+      }
     ]
   }
 }

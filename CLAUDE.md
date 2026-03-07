@@ -73,7 +73,9 @@ msbrookesj.com/
 │       └── screenshots-cleanup.yml # CI: deletes screenshots/pr-N branch when PR closes
 │
 ├── .claude/
-│   └── settings.json               # Project-shared Claude Code permissions
+│   ├── settings.json               # Project-shared Claude Code permissions and hooks
+│   └── hooks/
+│       └── session-start.sh        # SessionStart hook: environment detection and setup
 │
 ├── .htmlvalidate.json               # html-validate config
 ├── .lighthouserc.json               # Lighthouse CI config and score thresholds
@@ -315,9 +317,22 @@ Key flags:
 
 ## Claude Code Settings
 
-Project-shared permissions are stored in `.claude/settings.json` and committed to the repository. This pre-authorizes the `gsutil` deploy commands so they run without prompting.
+Project-shared permissions and hooks are stored in `.claude/settings.json` and committed to the repository. This pre-authorizes deploy commands (`gsutil`, `gcloud`) and test commands (`npm run test:*`, `npx playwright install`) so they run without prompting.
 
 User-specific overrides belong in `.claude/settings.local.json`, which is gitignored and never committed.
+
+### Environment Detection
+
+The project uses a `SessionStart` hook (`.claude/hooks/session-start.sh`) to detect the execution environment and set up accordingly:
+
+| Environment | Detection | Behaviour |
+|-------------|-----------|-----------|
+| **Claude Code on the web** | `CLAUDE_CODE_REMOTE=true` | Automatically runs `npm install` and `npx playwright install --with-deps chromium` so tests can run immediately |
+| **Local (CLI / IDE)** | `CLAUDE_CODE_REMOTE` unset | Assumes dependencies are already installed; warns if `node_modules/` is missing |
+
+This means sessions on Claude Code on the web are self-bootstrapping — no manual setup is needed before running tests.
+
+**Deploy commands** (`gsutil`, `gcloud`) use absolute paths specific to the local machine (`/Volumes/Source/google-cloud-sdk/bin/`). These are only available locally and will not work on Claude Code on the web. Deployments should only be done from the local environment.
 
 ---
 
