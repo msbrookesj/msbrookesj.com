@@ -93,25 +93,47 @@ footer {
   vertical-align: middle;
 }
 
-/* Academic course history tables: hide the Instructor column (4th) on mobile
-   to prevent horizontal overflow on narrow screens.  The three remaining
-   visible columns (Dept., #, Course Description, Academic Period) fit
-   comfortably within a 375 px viewport.  Using nth-child rather than per-cell
-   d-none classes because there are ~60 data cells across the four tables. */
+/* Academic course history tables: hide the Instructor (4th) and Academic
+   Period (5th) columns on mobile to prevent horizontal overflow on narrow
+   screens.  The three remaining visible columns (Dept., #, Course
+   Description) fit comfortably within a 375 px viewport.  Academic Period
+   moves into the mobile row-expand detail row.  Using nth-child rather than
+   per-cell d-none classes because there are ~60 data cells across the four
+   tables. */
 @media (max-width: 767.98px) {
   #ucsdClasses th:nth-child(4),
   #ucsdClasses td:nth-child(4),
+  #ucsdClasses th:nth-child(5),
+  #ucsdClasses td:nth-child(5),
   #grossmontClasses th:nth-child(4),
   #grossmontClasses td:nth-child(4),
+  #grossmontClasses th:nth-child(5),
+  #grossmontClasses td:nth-child(5),
   #tlcaClasses th:nth-child(4),
-  #tlcaClasses td:nth-child(4) {
+  #tlcaClasses td:nth-child(4),
+  #tlcaClasses th:nth-child(5),
+  #tlcaClasses td:nth-child(5) {
     display: none;
   }
+}
+
+/* Consistent vertical alignment for all academic course table cells */
+#ucsdClasses td,
+#grossmontClasses td,
+#tlcaClasses td {
+  vertical-align: middle;
 }
 
 
 /* ─── Mobile row-expand (mobile-table-expand.js) ────────────────────────────
    Detail row: appears below a tapped data row and shows the hidden columns   */
+
+/* Keep the hover highlight on a row while its detail row is open */
+.table-hover > tbody > tr[aria-expanded="true"] > * {
+  --bs-table-color-state: var(--bs-table-hover-color);
+  --bs-table-bg-state: var(--bs-table-hover-bg);
+}
+
 .table-row-detail td {
   background-color: #f8f9fa;
   font-size: 0.875rem;

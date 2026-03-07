@@ -115,7 +115,7 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 
 ## CSS Conventions
 
-- `website/css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7), `p a, li a { text-decoration: underline }` for link distinguishability (WCAG 1.4.1) with `.navbar li a, footer a { text-decoration: none }` to exclude nav/footer links, a `.jumbotron a` color override for contrast, and a `@media (max-width: 767.98px)` rule hiding the Instructor column (`:nth-child(4)`) in the academic course history tables.
+- `website/css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7), `p a, li a { text-decoration: underline }` for link distinguishability (WCAG 1.4.1) with `.navbar li a, footer a { text-decoration: none }` to exclude nav/footer links, a `.jumbotron a` color override for contrast, a `@media (max-width: 767.98px)` rule hiding the Instructor (`:nth-child(4)`) and Academic Period (`:nth-child(5)`) columns in the academic course history tables, a `.table-hover` rule keeping the hover highlight on rows while their detail row is open, and a `vertical-align: middle` rule ensuring consistent cell alignment across all academic tables.
 - **No inline styles** beyond what Bootstrap already uses.
 - **Do not** add `<style>` blocks inside HTML files; put custom CSS in `theme.css`.
 - Class naming follows Bootstrap conventions (`row`, `col-md-*`, `btn`, etc.).
@@ -138,12 +138,14 @@ Every `<table>` in the site must be mobile-friendly. A table that overflows its 
    <td class="td-middle d-none d-md-table-cell">Las Vegas, NV</td>
    ```
 
-3. **When there are too many cells to mark individually** (e.g. a multi-row course history table), use a CSS `nth-child` rule scoped to the table's containing `id` in `theme.css` instead. Example — academic course tables hide column 4 (Instructor):
+3. **When there are too many cells to mark individually** (e.g. a multi-row course history table), use a CSS `nth-child` rule scoped to the table's containing `id` in `theme.css` instead. Example — academic course tables hide columns 4 (Instructor) and 5 (Academic Period):
 
    ```css
    @media (max-width: 767.98px) {
      #ucsdClasses th:nth-child(4),
-     #ucsdClasses td:nth-child(4) { display: none; }
+     #ucsdClasses td:nth-child(4),
+     #ucsdClasses th:nth-child(5),
+     #ucsdClasses td:nth-child(5) { display: none; }
    }
    ```
 
@@ -152,7 +154,7 @@ Every `<table>` in the site must be mobile-friendly. A table that overflows its 
 | Page | Table | Mobile strategy |
 |------|-------|----------------|
 | `athlete.html` | Competition gallery | `d-none d-md-table-cell` on Level and Location columns |
-| `academic.html` | 4 × course history | CSS `nth-child(4)` in `theme.css` hides Instructor column |
+| `academic.html` | 4 × course history | CSS `nth-child(4)` and `nth-child(5)` in `theme.css` hide Instructor and Academic Period columns; Academic Period appears in the row-expand detail row |
 | `license.html` | Dependencies | `table-responsive` only (4 short columns fit without hiding) |
 
 **Mobile row-expand (detail rows)** — `website/js/mobile-table-expand.js` is loaded on pages with tables. On mobile (< 768 px) it makes every `<tbody>` row tappable: tapping inserts a `<tr class="table-row-detail">` directly below the row, containing one `<div>` per hidden column formatted as `**Label:** value`. Key implementation notes:
