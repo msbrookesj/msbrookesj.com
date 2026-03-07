@@ -22,6 +22,70 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
+
+      # Mark this commit as in-progress in the PR description before
+      # the slow screenshot capture begins.
+      - name: Mark screenshots in-progress
+        if: github.event_name == 'pull_request'
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          import json, re, subprocess, os
+
+          pr_num  = os.environ['PR_NUMBER']
+          repo    = os.environ['REPO']
+          run_sha = os.environ['GITHUB_SHA']
+          short   = run_sha[:7]
+
+          def gh(*args):
+              return subprocess.check_output(['gh'] + list(args) + ['-R', repo], text=True)
+
+          pr_data = json.loads(gh('pr', 'view', pr_num, '--json', 'headRefOid,body'))
+          head_sha = pr_data['headRefOid']
+          body     = pr_data.get('body') or ''
+
+          if run_sha != head_sha:
+              print(f"Stale run ({short}) — PR HEAD is now {head_sha[:7]}. Skipping.")
+              raise SystemExit(0)
+
+          # Enumerate existing screenshot branches
+          prefix = f"screenshots/pr-{pr_num}-"
+          refs = json.loads(
+              subprocess.check_output(
+                  ['gh', 'api', f'repos/{repo}/git/matching-refs/heads/{prefix}'],
+                  text=True))
+
+          lines = ['| Commit | Screenshots |',
+                   '| ------ | ----------- |']
+          for r in refs:
+              name = r['ref'].removeprefix('refs/heads/')
+              sha  = name.rsplit('-', 1)[-1]
+              url  = f'https://github.com/{repo}/tree/{name}/screenshots'
+              lines.append(f'| `{sha}` | [View]({url}) |')
+
+          # Append the in-progress row for the current commit
+          lines.append(f'| **`{short}`** (HEAD) | :hourglass_flowing_sand: Capturing… |')
+
+          table   = '\n'.join(lines)
+          marker  = '<!-- screenshots-bot -->'
+          section = f'\n\n---\n{marker}\n**Screenshots**\n\n{table}'
+
+          if marker in body:
+              body = re.sub(
+                  r'\n\n---\n' + re.escape(marker) + r'.*$', '',
+                  body, flags=re.DOTALL)
+
+          with open('/tmp/pr_body.txt', 'w') as f:
+              f.write(body + section)
+
+          subprocess.run(
+              ['gh', 'pr', 'edit', pr_num, '--body-file', '/tmp/pr_body.txt', '-R', repo],
+              check=True)
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'

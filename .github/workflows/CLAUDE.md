@@ -54,11 +54,28 @@ Before updating the PR description, the workflow checks whether `github.sha` sti
 
 ---
 
-## PR Description Format
+## PR Description Lifecycle
 
-The workflow appends a screenshots section to the PR description body (not a comment). It uses an HTML comment marker (`<!-- screenshots-bot -->`) to find and replace the section on subsequent updates.
+The workflow updates the PR description **twice per run**: once at the start (in-progress) and once at the end (final). Both updates use the same HTML comment marker (`<!-- screenshots-bot -->`) for idempotent replacement, and both apply the HEAD-staleness guard — if the commit is no longer HEAD, the update is skipped.
 
-The section contains a Markdown table listing all screenshot branches:
+### 1. In-progress update (before screenshot capture)
+
+Runs immediately after checkout, before `npm ci` / Playwright install. Lists all existing screenshot branches plus the current commit marked as in-progress:
+
+```markdown
+---
+<!-- screenshots-bot -->
+**Screenshots**
+
+| Commit | Screenshots |
+| ------ | ----------- |
+| `abc1234` | [View](...) |
+| **`def5678`** (HEAD) | :hourglass_flowing_sand: Capturing… |
+```
+
+### 2. Final update (after push)
+
+Replaces the in-progress row with a link to the newly pushed branch:
 
 ```markdown
 ---
@@ -71,7 +88,7 @@ The section contains a Markdown table listing all screenshot branches:
 | **`def5678`** (HEAD) | [View](...) |
 ```
 
-The HEAD commit's row is bold.
+The HEAD commit's row is always bold. The in-progress step runs **before** the orphan checkout, so `gh` can still resolve the repo locally — but `-R` is passed anyway for consistency.
 
 ---
 
@@ -114,7 +131,7 @@ When modifying these workflows, verify:
 - [ ] Every `gh pr` / `gh pr edit` call passes `-R $REPO`
 - [ ] The concurrency group key includes the PR number (or `github.ref` for `main` pushes)
 - [ ] `cancel-in-progress` is `false` — all commits must get screenshots
-- [ ] The HEAD guard compares `github.sha` to `headRefOid` before writing the description
+- [ ] The HEAD guard compares `github.sha` to `headRefOid` before **both** description updates (in-progress and final)
 - [ ] The description marker (`<!-- screenshots-bot -->`) is used for idempotent replacement
 - [ ] The cleanup workflow deletes using the `screenshots/pr-<N>-` prefix (not an exact branch name)
 - [ ] Branch names use the 7-character short SHA (`${SHA::7}`)
