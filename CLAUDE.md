@@ -293,9 +293,10 @@ Requires Node.js 20+ and Python 3 (Python is used to serve the site locally duri
 | `npm run test:html` | html-validate | Malformed markup, missing `alt` text, invalid attributes |
 | `npm run test:a11y` | Playwright + axe-core | WCAG 2.1 AA violations on all five pages |
 | `npm run test:lighthouse` | Lighthouse CI | Performance, accessibility, best practices, SEO scores |
+| `npm run test:perf-hints` | bash | Mobile PageSpeed regressions: Bootstrap `defer`, FA font preloads, `loading=lazy` on below-fold images, no `fetchpriority=high` on sub-page images |
 | `lychee --config .lychee.toml website/*.html` | lychee | Broken internal and external links |
 
-Lychee requires a separate binary install (see [lychee releases](https://github.com/lycheeverse/lychee/releases)); the other three run via `npm`.
+Lychee requires a separate binary install (see [lychee releases](https://github.com/lycheeverse/lychee/releases)); the other four run via `npm`.
 
 ### CI
 
