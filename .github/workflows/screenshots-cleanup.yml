@@ -1,4 +1,4 @@
-name: Delete Screenshots Branch
+name: Delete Screenshots Branches
 
 on:
   pull_request:
@@ -6,17 +6,26 @@ on:
 
 jobs:
   cleanup:
-    name: Delete screenshots/pr-${{ github.event.pull_request.number }}
+    name: Delete screenshots/pr-${{ github.event.pull_request.number }}-* branches
     runs-on: ubuntu-latest
     permissions:
       contents: write
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Delete branch
+      - name: Delete branches
         run: |
-          BRANCH="screenshots/pr-${{ github.event.pull_request.number }}"
-          gh api "repos/${{ github.repository }}/git/refs/heads/${BRANCH}" \
-            -X DELETE \
-            && echo "Deleted ${BRANCH}" \
-            || echo "Branch ${BRANCH} not found — nothing to delete"
+          PREFIX="screenshots/pr-${{ github.event.pull_request.number }}-"
+          REFS=$(gh api "repos/${{ github.repository }}/git/matching-refs/heads/${PREFIX}" \
+            --jq '.[].ref' 2>/dev/null || true)
+
+          if [ -z "$REFS" ]; then
+            echo "No screenshot branches found for PR #${{ github.event.pull_request.number }}"
+            exit 0
+          fi
+
+          echo "$REFS" | while read -r ref; do
+            gh api "repos/${{ github.repository }}/git/${ref}" -X DELETE \
+              && echo "Deleted ${ref}" \
+              || echo "Failed to delete ${ref}"
+          done

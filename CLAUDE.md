@@ -361,7 +361,8 @@ Lychee requires a separate binary install (see [lychee releases](https://github.
 
 GitHub Actions (`.github/workflows/test.yml`) runs all six test jobs in parallel on every push and pull request. Accessibility score below 0.9 in Lighthouse fails the build; other Lighthouse scores are warnings.
 
-A separate workflow (`.github/workflows/screenshots.yml`) captures full-page screenshots of every page at desktop and mobile viewports on every push and pull request. Screenshots are uploaded as a `page-screenshots` artifact (90-day retention). For pull requests the workflow also pushes the screenshots to a dedicated `screenshots/pr-<N>` branch and appends a link to the PR description (replacing it on subsequent pushes). A companion workflow (`.github/workflows/screenshots-cleanup.yml`) deletes the `screenshots/pr-<N>` branch automatically when the PR is closed or merged. 
+A separate workflow (`.github/workflows/screenshots.yml`) captures full-page screenshots of every page at desktop and mobile viewports on every push and pull request. Screenshots are uploaded as a `page-screenshots` artifact (90-day retention). For pull requests the workflow also pushes the screenshots to a dedicated `screenshots/pr-<N>-<sha>` branch (with the short commit hash as suffix to avoid race conditions between concurrent runs) and appends a link to the PR description (replacing it on subsequent pushes). Prior screenshot branches for the same PR are cleaned up before each push. A companion workflow (`.github/workflows/screenshots-cleanup.yml`) deletes all `screenshots/pr-<N>-*` branches automatically when the PR is closed or merged.
+
 ### Configuration files
 
 - `.htmlvalidate.json` — html-validate rules; `void-style: selfclose` enforces self-closing void elements (e.g. `<meta ... />`).

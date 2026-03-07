@@ -31,7 +31,10 @@ jobs:
           path: screenshots/
           retention-days: 90
 
-      # PRs: push to screenshots/pr-<N> and add a link to the PR description.
+      # PRs: push to screenshots/pr-<N>-<sha> and add a link to the PR
+      # description.  The commit hash in the branch name avoids race
+      # conditions when multiple pushes to the same PR trigger concurrent
+      # workflow runs — each run writes its own branch.
       # Skipped for PRs from forks (no write access to this repo).
       - name: Push screenshots for PR
         id: push-screenshots
@@ -39,20 +42,31 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          SHORT_SHA: ${{ github.sha }}
         run: |
-          BRANCH="screenshots/pr-${PR_NUMBER}"
+          SHORT_SHA="${SHORT_SHA::7}"
+          BRANCH="screenshots/pr-${PR_NUMBER}-${SHORT_SHA}"
+          PREFIX="screenshots/pr-${PR_NUMBER}-"
 
           # Delete any stale "screenshots" ref that would block the
           # "screenshots/pr-*" namespace (directory/file conflict).
           gh api "repos/${{ github.repository }}/git/refs/heads/screenshots" \
             -X DELETE 2>/dev/null || true
 
+          # Delete prior screenshot branches for this PR.
+          gh api "repos/${{ github.repository }}/git/matching-refs/heads/${PREFIX}" \
+            --jq '.[].ref' 2>/dev/null \
+          | while read -r ref; do
+              [ "$ref" = "refs/heads/${BRANCH}" ] && continue
+              gh api "repos/${{ github.repository }}/git/${ref}" -X DELETE 2>/dev/null || true
+            done
+
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout --orphan screenshots-tmp
           git rm -rf --cached . >/dev/null 2>&1 || true
           git add -f screenshots/
-          git commit -m "Screenshots for PR #${PR_NUMBER} @ ${GITHUB_SHA::7}"
+          git commit -m "Screenshots for PR #${PR_NUMBER} @ ${SHORT_SHA}"
           git push --force origin screenshots-tmp:"${BRANCH}"
 
       # Update PR description: append a screenshots link the first time,
@@ -63,16 +77,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          BRANCH: screenshots/pr-${{ github.event.pull_request.number }}
-          BRANCH_URL: https://github.com/${{ github.repository }}/tree/screenshots/pr-${{ github.event.pull_request.number }}/screenshots
+          REPO: ${{ github.repository }}
           GITHUB_SHA: ${{ github.sha }}
         run: |
           import subprocess, re, os
 
           pr_num = os.environ['PR_NUMBER']
-          branch = os.environ['BRANCH']
-          url    = os.environ['BRANCH_URL']
+          repo   = os.environ['REPO']
           sha    = os.environ['GITHUB_SHA'][:7]
+          branch = f'screenshots/pr-{pr_num}-{sha}'
+          url    = f'https://github.com/{repo}/tree/{branch}/screenshots'
 
           body = subprocess.check_output(
               ['gh', 'pr', 'view', pr_num, '--json', 'body', '--jq', '.body // ""'],
