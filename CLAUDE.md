@@ -32,6 +32,7 @@ msbrookesj.com/
 │   ├── professional.html           # Career / work history
 │   ├── academic.html               # Education, coursework, research
 │   ├── athlete.html                # Figure skating history
+│   ├── license.html                # Image credits and licensing information
 │   ├── 404.html                    # Custom "Page Not Found" error page (configured in GCS)
 │   ├── sitemap.xml                 # XML sitemap for search engine indexing
 │   ├── favicon.ico                 # Legacy ICO icon (all browsers)
@@ -43,7 +44,11 @@ msbrookesj.com/
 │   ├── site.webmanifest            # Web app manifest (ties Android/PWA icons together)
 │   │
 │   ├── css/
+│   │   ├── jumbotron.css           # Hero / jumbotron styles (index.html only)
 │   │   └── theme.css               # Footer layout, social icon hover colors, .page-image, .section-card
+│   │
+│   ├── js/
+│   │   └── mobile-table-expand.js  # Row-expand toggle for mobile table detail rows
 │   │
 │   ├── dependencies/               # Third-party libraries (vendored)
 │   │   ├── bootstrap/              # Bootstrap 5.3.3 framework
@@ -64,10 +69,13 @@ msbrookesj.com/
 ├── tests/
 │   ├── a11y.spec.js                # Playwright + axe-core accessibility tests (WCAG 2.1 AA)
 │   ├── mobile-table.spec.js        # Playwright responsive-layout tests: no horizontal overflow on any page (mobile + desktop), table-responsive wrappers, column visibility, row-expand detail rows
+│   ├── perf-hints.sh               # Performance hint checks: defer, preloads, lazy loading, table wrappers
 │   └── screenshots.spec.js         # Playwright full-page screenshots of every page at desktop + mobile viewports
 │
 ├── .github/
 │   └── workflows/
+│       ├── CLAUDE.md               # CI workflow conventions for AI assistants
+│       ├── deploy.yml              # CD: auto-deploy to GCS on merge to main
 │       ├── test.yml                # CI: HTML validation, link check, a11y, Lighthouse
 │       ├── screenshots.yml         # CI: full-page screenshots — artifacts + per-PR branch
 │       └── screenshots-cleanup.yml # CI: deletes screenshots/pr-N branch when PR closes
