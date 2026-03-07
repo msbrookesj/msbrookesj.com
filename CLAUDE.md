@@ -251,6 +251,7 @@ Key flags:
 | `CLAUDE.md` | Any of the above, plus new conventions, page structure changes, or AI-guidance rules |
 | `website/sitemap.xml` | A page is added or removed |
 | `.lighthouserc.json` | A page is added or removed (add/remove its URL from the `urls` list) |
+| `tests/perf-hints.sh` | A page is added or removed (add/remove it from the `ALL_PAGES` array) |
 | `website/license.html` | A third-party image is added or removed |
 
 ---
@@ -293,7 +294,7 @@ Requires Node.js 20+ and Python 3 (Python is used to serve the site locally duri
 | `npm run test:html` | html-validate | Malformed markup, missing `alt` text, invalid attributes |
 | `npm run test:a11y` | Playwright + axe-core | WCAG 2.1 AA violations on all five pages |
 | `npm run test:lighthouse` | Lighthouse CI | Performance, accessibility, best practices, SEO scores |
-| `npm run test:perf-hints` | bash | Mobile PageSpeed regressions: Bootstrap `defer`, FA font preloads, `loading=lazy` on below-fold images, no `fetchpriority=high` on sub-page images |
+| `npm run test:perf-hints` | bash | Mobile PageSpeed regressions: Bootstrap `defer`, FA webfont preloads, FA CSS async loading, `loading=lazy` on below-fold images, no `fetchpriority=high` on sub-page images |
 | `lychee --config .lychee.toml website/*.html` | lychee | Broken internal and external links |
 
 Lychee requires a separate binary install (see [lychee releases](https://github.com/lycheeverse/lychee/releases)); the other four run via `npm`.
@@ -321,6 +322,7 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 5. Place any new images under `website/assets/<section>/`.
 6. Add the new page to the `cp -z` deploy command in step 2 (both in `README.md` and `CLAUDE.md`).
 7. Add the new page's URL to `sitemap.xml`.
+8. Add the new page to `ALL_PAGES` in `tests/perf-hints.sh`.
 
 Note: the JSON-LD `Person` block lives only on `index.html` and `about.html` — do not copy it to content subpages.
 
