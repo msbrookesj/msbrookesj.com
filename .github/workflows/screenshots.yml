@@ -36,9 +36,15 @@ jobs:
       - name: Push screenshots for PR
         if: github.event_name == 'pull_request'
         env:
+          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           BRANCH="screenshots/pr-${PR_NUMBER}"
+
+          # Delete any stale "screenshots" ref that would block the
+          # "screenshots/pr-*" namespace (directory/file conflict).
+          gh api "repos/${{ github.repository }}/git/refs/heads/screenshots" \
+            -X DELETE 2>/dev/null || true
 
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
