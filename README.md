@@ -32,8 +32,13 @@ npx playwright install --with-deps chromium
 # HTML validation (html-validate)
 npm run test:html
 
-# Accessibility — WCAG 2.1 AA audit of all pages (Playwright + axe-core)
+# Accessibility (WCAG 2.1 AA) + responsive layout — no horizontal overflow on
+# every page at mobile and desktop, table-responsive wrappers, column visibility
 npm run test:a11y
+
+# Mobile PageSpeed regressions: Bootstrap defer, FA preloads, lazy images,
+# table-responsive wrappers and column-hiding rules
+npm run test:perf-hints
 
 # Lighthouse CI — performance, accessibility, best practices, SEO scores
 npm run test:lighthouse
@@ -55,6 +60,8 @@ Before committing, update all applicable supporting files in the same commit:
 | `CLAUDE.md` | Any of the above, plus new conventions, page structure changes, or AI-guidance rules |
 | `website/sitemap.xml` | A page is added or removed |
 | `.lighthouserc.json` | A page is added or removed |
+| `tests/perf-hints.sh` | A page is added or removed (`ALL_PAGES` array); a table is added or removed |
+| `tests/mobile-table.spec.js` | A page is added or removed (`ALL_PAGES` array at top of file); a table is added or removed |
 | `website/license.html` | A third-party image is added or removed |
 
 ---

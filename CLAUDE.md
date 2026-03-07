@@ -62,7 +62,8 @@ msbrookesj.com/
 │       └── professional/           # Professional page images
 │
 ├── tests/
-│   └── a11y.spec.js                # Playwright + axe-core accessibility tests (WCAG 2.1 AA)
+│   ├── a11y.spec.js                # Playwright + axe-core accessibility tests (WCAG 2.1 AA)
+│   └── mobile-table.spec.js        # Playwright responsive-layout tests: no horizontal overflow on any page (mobile + desktop), table-responsive wrappers, column visibility
 │
 ├── .github/
 │   └── workflows/
@@ -114,10 +115,49 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 
 ## CSS Conventions
 
-- `website/css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7), `p a, li a { text-decoration: underline }` for link distinguishability (WCAG 1.4.1) with `.navbar li a, footer a { text-decoration: none }` to exclude nav/footer links, and a `.jumbotron a` color override for contrast.
+- `website/css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7), `p a, li a { text-decoration: underline }` for link distinguishability (WCAG 1.4.1) with `.navbar li a, footer a { text-decoration: none }` to exclude nav/footer links, a `.jumbotron a` color override for contrast, and a `@media (max-width: 767.98px)` rule hiding the Instructor column (`:nth-child(4)`) in the academic course history tables.
 - **No inline styles** beyond what Bootstrap already uses.
 - **Do not** add `<style>` blocks inside HTML files; put custom CSS in `theme.css`.
 - Class naming follows Bootstrap conventions (`row`, `col-md-*`, `btn`, etc.).
+
+---
+
+## Table Conventions
+
+Every `<table>` in the site must be mobile-friendly. A table that overflows its container horizontally causes a page-level horizontal scrollbar on mobile, which breaks usability and fails Core Web Vitals layout checks.
+
+**Rules — apply to every `<table>` added to the site:**
+
+1. **Always wrap in `<div class="table-responsive">`.**  Bootstrap's `.table-responsive` constrains overflow to the wrapper and lets the table scroll horizontally within it rather than breaking the page layout.
+
+2. **Hide non-essential columns on mobile.** If a table has more than ~4 columns, identify which columns are least important to mobile readers and mark them with `d-none d-md-table-cell` on **both** the `<th>` and every corresponding `<td>` in that column. This hides the column below Bootstrap's `md` breakpoint (768 px) and shows it on larger screens.
+
+   ```html
+   <th scope="col" class="d-none d-md-table-cell">Location</th>
+   ...
+   <td class="td-middle d-none d-md-table-cell">Las Vegas, NV</td>
+   ```
+
+3. **When there are too many cells to mark individually** (e.g. a multi-row course history table), use a CSS `nth-child` rule scoped to the table's containing `id` in `theme.css` instead. Example — academic course tables hide column 4 (Instructor):
+
+   ```css
+   @media (max-width: 767.98px) {
+     #ucsdClasses th:nth-child(4),
+     #ucsdClasses td:nth-child(4) { display: none; }
+   }
+   ```
+
+**Currently implemented:**
+
+| Page | Table | Mobile strategy |
+|------|-------|----------------|
+| `athlete.html` | Competition gallery | `d-none d-md-table-cell` on Level and Location columns |
+| `academic.html` | 4 × course history | CSS `nth-child(4)` in `theme.css` hides Instructor column |
+| `license.html` | Dependencies | `table-responsive` only (4 short columns fit without hiding) |
+
+**Regression guards** — two layers prevent regressions:
+- `tests/perf-hints.sh` — static grep checks that `table-responsive` wrappers and column-hiding patterns are present in each affected file.
+- `tests/mobile-table.spec.js` — Playwright tests that verify no horizontal overflow on **every** page at both mobile (375 px) and desktop (1024 px) viewports, plus per-page column-visibility assertions.
 
 ---
 
@@ -251,7 +291,8 @@ Key flags:
 | `CLAUDE.md` | Any of the above, plus new conventions, page structure changes, or AI-guidance rules |
 | `website/sitemap.xml` | A page is added or removed |
 | `.lighthouserc.json` | A page is added or removed (add/remove its URL from the `urls` list) |
-| `tests/perf-hints.sh` | A page is added or removed (add/remove it from the `ALL_PAGES` array) |
+| `tests/perf-hints.sh` | A page is added or removed (add/remove it from the `ALL_PAGES` array); a table is added or removed (add/remove its `table-responsive` and column-hiding checks) |
+| `tests/mobile-table.spec.js` | A page is added or removed (add/remove it from the `ALL_PAGES` array at the top of the file); a table is added or removed (add/remove its describe block) |
 | `website/license.html` | A third-party image is added or removed |
 
 ---
@@ -273,6 +314,7 @@ User-specific overrides belong in `.claude/settings.local.json`, which is gitign
 - **Do not** run `gsutil rsync -d` without verifying the local state matches intent — the `-d` flag deletes remote files.
 - **Do not** run `gsutil cp -r website/` (with `website/` as the sole source) — it will upload all files including any in-progress pages. Always use the documented deploy script, which lists explicit paths in the `cp` steps.
 - **Do not** use `b1ryan.com` or any other alias as the domain in `<link rel="canonical">`, Open Graph / Twitter Card tags, or `sitemap.xml`. The authoritative hostname is `www.msbrookesj.com`. The GCS bucket name `b1ryan.com` is an infrastructure detail and must not appear in site content URLs.
+- **Do not** add a `<table>` without wrapping it in `<div class="table-responsive">`. An unwrapped table causes a page-level horizontal scrollbar on mobile. See the **Table Conventions** section for the full pattern including column hiding.
 
 ---
 
@@ -292,9 +334,9 @@ Requires Node.js 20+ and Python 3 (Python is used to serve the site locally duri
 | Command | Tool | What it checks |
 |---------|------|----------------|
 | `npm run test:html` | html-validate | Malformed markup, missing `alt` text, invalid attributes |
-| `npm run test:a11y` | Playwright + axe-core | WCAG 2.1 AA violations on all five pages |
+| `npm run test:a11y` | Playwright + axe-core | WCAG 2.1 AA violations on all pages (`a11y.spec.js`) **and** responsive layout — no horizontal overflow on every page at mobile + desktop, table-responsive wrappers, column visibility at each breakpoint (`mobile-table.spec.js`) |
 | `npm run test:lighthouse` | Lighthouse CI | Performance, accessibility, best practices, SEO scores |
-| `npm run test:perf-hints` | bash | Mobile PageSpeed regressions: Bootstrap `defer`, FA webfont preloads, FA CSS async loading, `loading=lazy` on below-fold images, no `fetchpriority=high` on sub-page images |
+| `npm run test:perf-hints` | bash | Mobile PageSpeed regressions: Bootstrap `defer`, FA webfont preloads, FA CSS async loading, `loading=lazy` on below-fold images, no `fetchpriority=high` on sub-page images, `table-responsive` wrappers and column-hiding rules on all table pages |
 | `lychee --config .lychee.toml website/*.html` | lychee | Broken internal and external links |
 
 Lychee requires a separate binary install (see [lychee releases](https://github.com/lycheeverse/lychee/releases)); the other four run via `npm`.
@@ -323,6 +365,7 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 6. Add the new page to the `cp -z` deploy command in step 2 (both in `README.md` and `CLAUDE.md`).
 7. Add the new page's URL to `sitemap.xml`.
 8. Add the new page to `ALL_PAGES` in `tests/perf-hints.sh`.
+9. Add the new page to `ALL_PAGES` in `tests/mobile-table.spec.js` (the overflow loop covers it automatically once it's in the list).
 
 Note: the JSON-LD `Person` block lives only on `index.html` and `about.html` — do not copy it to content subpages.
 
