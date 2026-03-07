@@ -128,18 +128,26 @@ footer {
 /* ─── Mobile row-expand (mobile-table-expand.js) ────────────────────────────
    Detail row: appears below a tapped data row and shows the hidden columns   */
 
-/* Row-linked gallery: always visible on desktop (no expand trigger exists there);
-   on mobile it is toggled by mobile-table-expand.js via Bootstrap's Collapse API. */
-@media (min-width: 768px) {
-  .row-gallery.collapse {
-    display: block !important;
-  }
-}
+/* Row-linked gallery: on both desktop and mobile the gallery starts collapsed
+   and is toggled via a "View Photos" button (desktop) or a row tap (mobile).
+   The aria-expanded highlight rule below keeps the parent row highlighted
+   while the gallery is open. */
 
 /* Keep the hover highlight on a row while its detail row is open */
 .table-hover > tbody > tr[aria-expanded="true"] > * {
   --bs-table-color-state: var(--bs-table-hover-color);
   --bs-table-bg-state: var(--bs-table-hover-bg);
+}
+
+/* On mobile, disable the default table-hover :hover highlight so that only
+   expanded (aria-expanded="true") rows stay highlighted.  Without this, touch
+   devices keep the sticky :hover state after tapping to collapse a row,
+   leaving a highlight on rows that are no longer disclosed. */
+@media (max-width: 767.98px) {
+  .table-hover > tbody > tr:not([aria-expanded="true"]):hover > * {
+    --bs-table-color-state: var(--bs-table-color);
+    --bs-table-bg-state: var(--bs-table-bg);
+  }
 }
 
 .table-row-detail td {

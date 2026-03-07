@@ -6,6 +6,11 @@
  * d-none d-md-table-cell classes or a CSS nth-child rule in theme.css).
  * Tapping the row a second time collapses the detail row.
  *
+ * On desktop, rows with a data-bs-gallery attribute can have a visible
+ * "View Photos" button that toggles the gallery via Bootstrap Collapse.
+ * This script syncs the row's aria-expanded attribute with the gallery's
+ * collapse state so the table-hover highlight tracks disclosure.
+ *
  * Works with every .table-responsive table.table on the page.
  * Links and buttons inside rows still fire normally and do not trigger the expand.
  * Opening the page at desktop width, or resizing to ≥ 768 px, collapses any
@@ -126,7 +131,27 @@
     });
   }
 
+  /** Sync aria-expanded on the parent row when a gallery is toggled via its
+   *  own Bootstrap Collapse trigger (the "View Photos" button on desktop).
+   *  On mobile the row-tap handler already manages aria-expanded, so only
+   *  update when Bootstrap fires the event independently (i.e. the button). */
+  function initGallerySync() {
+    document.querySelectorAll('.row-gallery[id]').forEach(function (gallery) {
+      // Find the <tr> that owns this gallery via data-bs-gallery
+      var row = document.querySelector('tr[data-bs-gallery="' + gallery.id + '"]');
+      if (!row) { return; }
+
+      gallery.addEventListener('shown.bs.collapse', function () {
+        row.setAttribute('aria-expanded', 'true');
+      });
+      gallery.addEventListener('hidden.bs.collapse', function () {
+        row.removeAttribute('aria-expanded');
+      });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.table-responsive table.table').forEach(initTable);
+    initGallerySync();
   });
 }());

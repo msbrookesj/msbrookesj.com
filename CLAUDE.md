@@ -118,7 +118,7 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 
 ## CSS Conventions
 
-- `website/css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7), `p a, li a { text-decoration: underline }` for link distinguishability (WCAG 1.4.1) with `.navbar li a, footer a { text-decoration: none }` to exclude nav/footer links, a `.jumbotron a` color override for contrast, a `@media (max-width: 767.98px)` rule hiding the Instructor (`:nth-child(4)`) and Academic Period (`:nth-child(5)`) columns in the academic course history tables, a `.table-hover` rule keeping the hover highlight on rows while their detail row is open, and a `vertical-align: middle` rule ensuring consistent cell alignment across all academic tables.
+- `website/css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7), `p a, li a { text-decoration: underline }` for link distinguishability (WCAG 1.4.1) with `.navbar li a, footer a { text-decoration: none }` to exclude nav/footer links, a `.jumbotron a` color override for contrast, a `@media (max-width: 767.98px)` rule hiding the Instructor (`:nth-child(4)`) and Academic Period (`:nth-child(5)`) columns in the academic course history tables, a `.table-hover` rule keeping the hover highlight on rows while their detail row is open, a mobile override that disables the sticky `:hover` highlight on collapsed rows (so only disclosed rows stay highlighted), and a `vertical-align: middle` rule ensuring consistent cell alignment across all academic tables.
 - **No inline styles** beyond what Bootstrap already uses.
 - **Do not** add `<style>` blocks inside HTML files; put custom CSS in `theme.css`.
 - Class naming follows Bootstrap conventions (`row`, `col-md-*`, `btn`, etc.).
@@ -156,7 +156,7 @@ Every `<table>` in the site must be mobile-friendly. A table that overflows its 
 
 | Page | Table | Mobile strategy |
 |------|-------|----------------|
-| `athlete.html` | Competition gallery | `d-none d-md-table-cell` on Level and Location columns; 2023–24 row carries `data-bs-gallery="gallery2024"` so tapping on mobile auto-expands the photo carousel |
+| `athlete.html` | Competition gallery | `d-none d-md-table-cell` on Level and Location columns; 2023–24 row carries `data-bs-gallery="gallery2024"` — on mobile, tapping the row auto-expands the photo carousel; on desktop, a "View Photos" button (hidden on mobile via `d-none d-md-inline`) toggles the gallery via Bootstrap Collapse |
 | `academic.html` | 4 × course history | CSS `nth-child(4)` and `nth-child(5)` in `theme.css` hide Instructor and Academic Period columns; Academic Period appears in the row-expand detail row |
 | `license.html` | Dependencies | `table-responsive` only (4 short columns fit without hiding) |
 
@@ -164,7 +164,7 @@ Every `<table>` in the site must be mobile-friendly. A table that overflows its 
 
 - Each hidden field is wrapped in its own `<div>` so fields appear on separate lines (not dot-joined on one line).
 - Cell values are read via `innerHTML` (not `textContent`) so links and other interactive elements inside hidden cells remain fully functional inside the detail row.
-- If a `<tr>` carries a `data-bs-gallery="<id>"` attribute, tapping to expand also shows the Bootstrap Collapse element with that id (and hides it again on collapse). The `.row-gallery.collapse` CSS class forces that element always visible on desktop via `theme.css`.
+- If a `<tr>` carries a `data-bs-gallery="<id>"` attribute, tapping to expand also shows the Bootstrap Collapse element with that id (and hides it again on collapse). On desktop, the gallery starts collapsed and is toggled by a visible "View Photos" button (hidden on mobile via `d-none d-md-inline`) that uses Bootstrap's `data-bs-toggle="collapse"`. The script listens for Bootstrap `shown.bs.collapse` / `hidden.bs.collapse` events to sync `aria-expanded` on the parent row, keeping the table-hover highlight in sync with disclosure state.
 - Tapping the expanded row a second time removes the detail row.
 - Resizing to desktop width (≥ 768 px) auto-collapses all open detail rows and their associated galleries.
 - Clicks on `<a>` or `<button>` elements inside a row pass through to their default handlers and do **not** trigger row expansion.
