@@ -178,7 +178,14 @@ test.describe('Athlete page — mobile row expansion', () => {
     // Use the stable attribute selector — avoids re-resolving to the inserted detail row.
     const row2024 = page.locator('table.table tbody tr[data-bs-gallery="gallery2024"]');
     await row2024.click({ position: { x: 10, y: 10 } });
-    await expect(page.locator('#gallery2024')).toBeVisible();
+    // Wait for Bootstrap's show animation to fully complete before tapping again.
+    // Bootstrap's Collapse.hide() is a no-op while _isTransitioning is true, so
+    // clicking a second time mid-animation would silently do nothing. The animation
+    // is done once the element has class="collapse show" with no "collapsing" class.
+    await page.waitForFunction(() => {
+      const el = document.getElementById('gallery2024');
+      return el && el.classList.contains('show') && !el.classList.contains('collapsing');
+    });
     // Tap again to collapse.
     await row2024.click({ position: { x: 10, y: 10 } });
     await expect(page.locator('#gallery2024')).toBeHidden();
