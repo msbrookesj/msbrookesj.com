@@ -142,6 +142,17 @@ footer {
   --bs-table-bg-state: var(--bs-table-hover-bg);
 }
 
+/* On mobile, disable the default table-hover :hover highlight so that only
+   expanded (aria-expanded="true") rows stay highlighted.  Without this, touch
+   devices keep the sticky :hover state after tapping to collapse a row,
+   leaving a highlight on rows that are no longer disclosed. */
+@media (max-width: 767.98px) {
+  .table-hover > tbody > tr:not([aria-expanded="true"]):hover > * {
+    --bs-table-color-state: var(--bs-table-color);
+    --bs-table-bg-state: var(--bs-table-bg);
+  }
+}
+
 .table-row-detail td {
   background-color: #f8f9fa;
   font-size: 0.875rem;
