@@ -131,7 +131,7 @@ When modifying these workflows, verify:
 - [ ] Every `gh pr` / `gh pr edit` call passes `-R $REPO`
 - [ ] The concurrency group key includes the PR number (or `github.ref` for `main` pushes)
 - [ ] `cancel-in-progress` is `false` — all commits must get screenshots
-- [ ] The HEAD guard compares `github.sha` to `headRefOid` before **both** description updates (in-progress and final)
+- [ ] The HEAD guard compares `PR_HEAD_SHA` (set to `github.event.pull_request.head.sha`) to `headRefOid` before **both** description updates (in-progress and final). **Do not** use the built-in `GITHUB_SHA` env var — for `pull_request` events it is the merge commit SHA, not the PR head, and overriding a built-in env var may not take effect reliably.
 - [ ] The description marker (`<!-- screenshots-bot -->`) is used for idempotent replacement
 - [ ] The cleanup workflow deletes using the `screenshots/pr-<N>-` prefix (not an exact branch name)
 - [ ] Branch names use the 7-character short SHA (`${SHA::7}`)
