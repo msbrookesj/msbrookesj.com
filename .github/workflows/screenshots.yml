@@ -88,15 +88,3 @@ jobs:
           subprocess.run(
               ['gh', 'pr', 'edit', pr_num, '--body-file', '/tmp/pr_body.txt'],
               check=True)
-
-      # Non-PR pushes: update the shared screenshots branch for easy browsing.
-      - name: Publish screenshots for push
-        if: github.event_name == 'push'
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout --orphan screenshots-tmp
-          git rm -rf --cached . >/dev/null 2>&1 || true
-          git add -f screenshots/
-          git commit -m "Screenshots from ${GITHUB_REF_NAME} @ ${GITHUB_SHA::7}"
-          git push --force origin screenshots-tmp:screenshots-main
