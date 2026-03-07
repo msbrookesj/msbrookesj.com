@@ -63,11 +63,13 @@ msbrookesj.com/
 │
 ├── tests/
 │   ├── a11y.spec.js                # Playwright + axe-core accessibility tests (WCAG 2.1 AA)
-│   └── mobile-table.spec.js        # Playwright responsive-layout tests: no horizontal overflow on any page (mobile + desktop), table-responsive wrappers, column visibility, row-expand detail rows
+│   ├── mobile-table.spec.js        # Playwright responsive-layout tests: no horizontal overflow on any page (mobile + desktop), table-responsive wrappers, column visibility, row-expand detail rows
+│   └── screenshots.spec.js         # Playwright full-page screenshots of every page at desktop + mobile viewports
 │
 ├── .github/
 │   └── workflows/
-│       └── test.yml                # CI: HTML validation, link check, a11y, Lighthouse
+│       ├── test.yml                # CI: HTML validation, link check, a11y, Lighthouse
+│       └── screenshots.yml         # CI: full-page screenshots uploaded as artifacts
 │
 ├── .claude/
 │   └── settings.json               # Project-shared Claude Code permissions
@@ -304,6 +306,7 @@ Key flags:
 | `.lighthouserc.json` | A page is added or removed (add/remove its URL from the `urls` list) |
 | `tests/perf-hints.sh` | A page is added or removed (add/remove it from the `ALL_PAGES` array); a table is added or removed (add/remove its `table-responsive` and column-hiding checks) |
 | `tests/mobile-table.spec.js` | A page is added or removed (add/remove it from the `ALL_PAGES` array at the top of the file); a table is added or removed (add/remove its describe block) |
+| `tests/screenshots.spec.js` | A page is added or removed (add/remove it from `ALL_PAGES`); a page gains or loses collapse sections (add/remove it from `PAGES_WITH_DISCLOSURES`) |
 | `website/license.html` | A third-party image is added or removed |
 
 ---
@@ -348,13 +351,16 @@ Requires Node.js 20+ and Python 3 (Python is used to serve the site locally duri
 | `npm run test:a11y` | Playwright + axe-core | WCAG 2.1 AA violations on all pages (`a11y.spec.js`) **and** responsive layout — no horizontal overflow on every page at mobile + desktop, table-responsive wrappers, column visibility at each breakpoint, row-expand detail rows (`mobile-table.spec.js`) |
 | `npm run test:lighthouse` | Lighthouse CI | Performance, accessibility, best practices, SEO scores |
 | `npm run test:perf-hints` | bash | Mobile PageSpeed regressions: Bootstrap `defer`, FA webfont preloads, FA CSS async loading, `loading=lazy` on below-fold images, no `fetchpriority=high` on sub-page images, `table-responsive` wrappers and column-hiding rules on all table pages |
+| `npm run screenshots` | Playwright | Full-page screenshots of every page at desktop (1280×720) and mobile (iPhone 12) viewports; saved to `screenshots/` |
 | `lychee --config .lychee.toml website/*.html` | lychee | Broken internal and external links |
 
-Lychee requires a separate binary install (see [lychee releases](https://github.com/lycheeverse/lychee/releases)); the other four run via `npm`.
+Lychee requires a separate binary install (see [lychee releases](https://github.com/lycheeverse/lychee/releases)); the other five run via `npm`.
 
 ### CI
 
-GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on every push and pull request. Accessibility score below 0.9 in Lighthouse fails the build; other Lighthouse scores are warnings.
+GitHub Actions (`.github/workflows/test.yml`) runs all four test jobs in parallel on every push and pull request. Accessibility score below 0.9 in Lighthouse fails the build; other Lighthouse scores are warnings.
+
+A separate workflow (`.github/workflows/screenshots.yml`) captures full-page screenshots of every page at desktop and mobile viewports on every push and pull request. The screenshots are uploaded as a `page-screenshots` artifact (90-day retention) so you can visually compare how any page looked at any point in time.
 
 ### Configuration files
 
@@ -377,6 +383,7 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 7. Add the new page's URL to `sitemap.xml`.
 8. Add the new page to `ALL_PAGES` in `tests/perf-hints.sh`.
 9. Add the new page to `ALL_PAGES` in `tests/mobile-table.spec.js` (the overflow loop covers it automatically once it's in the list).
+10. Add the new page to `ALL_PAGES` in `tests/screenshots.spec.js`. If the page has Bootstrap collapse sections, also add it to `PAGES_WITH_DISCLOSURES`.
 
 Note: the JSON-LD `Person` block lives only on `index.html` and `about.html` — do not copy it to content subpages.
 
