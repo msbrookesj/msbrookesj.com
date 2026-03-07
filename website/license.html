@@ -34,10 +34,15 @@
         <!-- Custom styles for this template -->
         <link href="css/theme.css" rel="stylesheet" />
 
-        <!-- Font Awesome icons -->
-        <link rel="stylesheet" href="dependencies/font-awesome/css/fontawesome.min.css" />
-        <link rel="stylesheet" href="dependencies/font-awesome/css/brands.min.css" />
-        <link rel="stylesheet" href="dependencies/font-awesome/css/solid.min.css" />
+        <!-- Font Awesome icons — loaded async to avoid render-blocking -->
+        <link rel="preload" href="dependencies/font-awesome/css/fontawesome.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+        <link rel="preload" href="dependencies/font-awesome/css/brands.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+        <link rel="preload" href="dependencies/font-awesome/css/solid.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+        <noscript>
+            <link rel="stylesheet" href="dependencies/font-awesome/css/fontawesome.min.css" />
+            <link rel="stylesheet" href="dependencies/font-awesome/css/brands.min.css" />
+            <link rel="stylesheet" href="dependencies/font-awesome/css/solid.min.css" />
+        </noscript>
     </head>
 
     <body role="document">
