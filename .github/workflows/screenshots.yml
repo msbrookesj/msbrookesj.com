@@ -31,14 +31,12 @@ jobs:
 
       # PRs: push to screenshots/pr-<N> and add a link to the PR description.
       # Skipped for PRs from forks (no write access to this repo).
-      - name: Publish screenshots for PR
+      - name: Push screenshots for PR
         if: github.event_name == 'pull_request'
         env:
-          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           BRANCH="screenshots/pr-${PR_NUMBER}"
-          BRANCH_URL="https://github.com/${{ github.repository }}/tree/${BRANCH}/screenshots"
 
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -48,37 +46,46 @@ jobs:
           git commit -m "Screenshots for PR #${PR_NUMBER} @ ${GITHUB_SHA::7}"
           git push --force origin screenshots-tmp:"${BRANCH}"
 
-          # Update PR description: append a screenshots link the first time,
-          # or replace the existing one on subsequent pushes.
-          cat > /tmp/update_pr.py << 'PYEOF'
-import subprocess, re, os
+      # Update PR description: append a screenshots link the first time,
+      # or replace the existing one on subsequent pushes.
+      - name: Update PR description
+        if: github.event_name == 'pull_request'
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BRANCH: screenshots/pr-${{ github.event.pull_request.number }}
+          BRANCH_URL: https://github.com/${{ github.repository }}/tree/screenshots/pr-${{ github.event.pull_request.number }}/screenshots
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          import subprocess, re, os
 
-pr_num = os.environ['PR_NUMBER']
-branch = os.environ['BRANCH']
-url    = os.environ['BRANCH_URL']
-sha    = os.environ['GITHUB_SHA'][:7]
+          pr_num = os.environ['PR_NUMBER']
+          branch = os.environ['BRANCH']
+          url    = os.environ['BRANCH_URL']
+          sha    = os.environ['GITHUB_SHA'][:7]
 
-body = subprocess.check_output(
-    ['gh', 'pr', 'view', pr_num, '--json', 'body', '--jq', '.body // ""'],
-    text=True).strip()
+          body = subprocess.check_output(
+              ['gh', 'pr', 'view', pr_num, '--json', 'body', '--jq', '.body // ""'],
+              text=True).strip()
 
-marker  = '<!-- screenshots-bot -->'
-section = (
-    f'\n\n---\n{marker}\n'
-    f'**Screenshots:** [View `{branch}` branch]({url}) — from `{sha}`'
-)
+          marker  = '<!-- screenshots-bot -->'
+          section = (
+              f'\n\n---\n{marker}\n'
+              f'**Screenshots:** [View `{branch}` branch]({url}) — from `{sha}`'
+          )
 
-if marker in body:
-    body = re.sub(
-        r'\n\n---\n' + re.escape(marker) + r'.*$', '',
-        body, flags=re.DOTALL)
+          if marker in body:
+              body = re.sub(
+                  r'\n\n---\n' + re.escape(marker) + r'.*$', '',
+                  body, flags=re.DOTALL)
 
-with open('/tmp/pr_body.txt', 'w') as f:
-    f.write(body + section)
-PYEOF
+          with open('/tmp/pr_body.txt', 'w') as f:
+              f.write(body + section)
 
-          BRANCH="${BRANCH}" BRANCH_URL="${BRANCH_URL}" python3 /tmp/update_pr.py
-          gh pr edit "${PR_NUMBER}" --body-file /tmp/pr_body.txt
+          subprocess.run(
+              ['gh', 'pr', 'edit', pr_num, '--body-file', '/tmp/pr_body.txt'],
+              check=True)
 
       # Non-PR pushes: update the shared screenshots branch for easy browsing.
       - name: Publish screenshots for push
