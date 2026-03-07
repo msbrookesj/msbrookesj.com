@@ -5,7 +5,8 @@
   "scripts": {
     "test:html": "html-validate website/*.html",
     "test:a11y": "playwright test",
-    "test:lighthouse": "lhci autorun"
+    "test:lighthouse": "lhci autorun",
+    "test:perf-hints": "bash tests/perf-hints.sh"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",

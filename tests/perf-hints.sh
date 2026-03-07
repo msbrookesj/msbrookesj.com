@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Regression guard for mobile PageSpeed optimizations.
+# Fails if any required performance hints are missing or any forbidden
+# patterns are present.  Run via: npm run test:perf-hints
+
+set -euo pipefail
+
+FAIL=0
+
+ALL_PAGES=(
+  website/index.html
+  website/about.html
+  website/professional.html
+  website/academic.html
+  website/athlete.html
+  website/404.html
+)
+
+# Pages where the sidebar image (col-md-4) stacks below a full column of
+# text on mobile, placing it well off-screen at load time.
+SUBPAGES=(
+  website/about.html
+  website/professional.html
+  website/academic.html
+  website/athlete.html
+  website/404.html
+)
+
+pass() { printf "  ok  %s: %s\n" "$1" "$2"; }
+fail() { printf "FAIL  %s: %s\n" "$1" "$2"; FAIL=1; }
+
+check_present() {
+  local file=$1 pattern=$2 desc=$3
+  if grep -qE "$pattern" "$file"; then
+    pass "$file" "$desc"
+  else
+    fail "$file" "$desc"
+  fi
+}
+
+check_absent() {
+  local file=$1 pattern=$2 desc=$3
+  if ! grep -qE "$pattern" "$file"; then
+    pass "$file" "$desc"
+  else
+    fail "$file" "$desc"
+  fi
+}
+
+echo "=== Performance hint regression checks ==="
+echo ""
+echo "-- All pages --"
+for page in "${ALL_PAGES[@]}"; do
+  # Bootstrap JS must be deferred so it does not block the HTML parser.
+  check_present "$page" \
+    'bootstrap\.bundle\.min\.js[^>]*defer' \
+    'Bootstrap JS has defer attribute'
+
+  # Preloading the Font Awesome webfonts breaks the CSS→font dependency
+  # chain that PageSpeed flags as a critical request tree.
+  check_present "$page" \
+    'rel="preload"[^>]*fa-brands-400\.woff2' \
+    'Font Awesome brands font is preloaded'
+  check_present "$page" \
+    'rel="preload"[^>]*fa-solid-900\.woff2' \
+    'Font Awesome solid font is preloaded'
+done
+
+echo ""
+echo "-- Sub-pages (below-fold sidebar images) --"
+for page in "${SUBPAGES[@]}"; do
+  # Sidebar images are below the fold on mobile; they must be lazy-loaded.
+  check_present "$page" \
+    'loading="lazy"' \
+    'Below-fold sidebar image has loading=lazy'
+
+  # fetchpriority=high on a below-fold image forces an eager high-priority
+  # fetch that hurts mobile LCP.  Only index.html (hero image) is exempt.
+  check_absent "$page" \
+    'fetchpriority="high"' \
+    'No fetchpriority=high on below-fold images'
+done
+
+echo ""
+if [ "$FAIL" -eq 0 ]; then
+  echo "All checks passed."
+else
+  echo "$FAIL check(s) failed."
+fi
+exit "$FAIL"
