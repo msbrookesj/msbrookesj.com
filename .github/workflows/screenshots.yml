@@ -32,7 +32,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
-          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           import json, re, subprocess, os
 
@@ -109,7 +109,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          SHORT_SHA: ${{ github.sha }}
+          SHORT_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           SHORT_SHA="${SHORT_SHA::7}"
           BRANCH="screenshots/pr-${PR_NUMBER}-${SHORT_SHA}"
@@ -137,7 +137,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
-          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           import json, re, subprocess, os
 
