@@ -303,6 +303,7 @@ Key flags:
 | `.lighthouserc.json` | A page is added or removed (add/remove its URL from the `urls` list) |
 | `tests/perf-hints.sh` | A page is added or removed (add/remove it from the `ALL_PAGES` array); a table is added or removed (add/remove its `table-responsive` and column-hiding checks) |
 | `tests/mobile-table.spec.js` | A page is added or removed (add/remove it from the `ALL_PAGES` array at the top of the file); a table is added or removed (add/remove its describe block) |
+| `tests/screenshots.spec.js` | A page is added or removed (add/remove it from `ALL_PAGES`); a page gains or loses collapse sections (add/remove it from `PAGES_WITH_DISCLOSURES`) |
 | `website/license.html` | A third-party image is added or removed |
 
 ---
@@ -350,7 +351,7 @@ Requires Node.js 20+ and Python 3 (Python is used to serve the site locally duri
 | `npm run screenshots` | Playwright | Full-page screenshots of every page at desktop (1280×720) and mobile (iPhone 12) viewports; saved to `screenshots/` |
 | `lychee --config .lychee.toml website/*.html` | lychee | Broken internal and external links |
 
-Lychee requires a separate binary install (see [lychee releases](https://github.com/lycheeverse/lychee/releases)); the other four run via `npm`.
+Lychee requires a separate binary install (see [lychee releases](https://github.com/lycheeverse/lychee/releases)); the other five run via `npm`.
 
 ### CI
 
@@ -379,6 +380,7 @@ A separate workflow (`.github/workflows/screenshots.yml`) captures full-page scr
 7. Add the new page's URL to `sitemap.xml`.
 8. Add the new page to `ALL_PAGES` in `tests/perf-hints.sh`.
 9. Add the new page to `ALL_PAGES` in `tests/mobile-table.spec.js` (the overflow loop covers it automatically once it's in the list).
+10. Add the new page to `ALL_PAGES` in `tests/screenshots.spec.js`. If the page has Bootstrap collapse sections, also add it to `PAGES_WITH_DISCLOSURES`.
 
 Note: the JSON-LD `Person` block lives only on `index.html` and `about.html` — do not copy it to content subpages.
 
