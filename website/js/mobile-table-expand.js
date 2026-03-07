@@ -25,12 +25,15 @@
     }, []);
   }
 
-  /** Build a <tr> containing one <td> that spans all columns and lists hidden field values */
+  /** Build a <tr> containing one <td> that spans all columns and lists hidden field values.
+   *  Each hidden field appears on its own line.  Cell innerHTML is used (not textContent) so
+   *  that links, buttons and other interactive elements (e.g. "View Photos" collapse triggers)
+   *  remain functional inside the detail row. */
   function buildDetailRow(row, indices, headerRow) {
-    var pairs = indices.map(function (i) {
+    var lines = indices.map(function (i) {
       var label = (headerRow.cells[i] && headerRow.cells[i].textContent.trim()) || '';
-      var value = (row.cells[i]       && row.cells[i].textContent.trim())       || '\u2014';
-      return '<strong>' + label + ':</strong>\u00a0' + value;
+      var value = (row.cells[i]       && row.cells[i].innerHTML.trim())         || '\u2014';
+      return '<div><strong>' + label + ':</strong>\u00a0' + value + '</div>';
     });
 
     var tr = document.createElement('tr');
@@ -38,7 +41,7 @@
 
     var td = document.createElement('td');
     td.colSpan = row.cells.length;
-    td.innerHTML = pairs.join('\u2003\u00b7\u2003'); // em-space · em-space
+    td.innerHTML = lines.join('');
 
     tr.appendChild(td);
     return tr;

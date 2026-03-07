@@ -105,3 +105,110 @@ test.describe('License page — dependencies table mobile rendering', () => {
     await expect(page.locator('.table-responsive table.table')).toHaveCount(1);
   });
 });
+
+// ─── Mobile row-expand: detail row behaviour ───────────────────────────────
+// Tests for mobile-table-expand.js: tapping a row on mobile shows a detail
+// row containing the hidden column data; each field appears on its own line;
+// links inside hidden cells are preserved; tapping again collapses the row.
+
+test.describe('Athlete page — mobile row expansion', () => {
+  test('tapping a row on mobile inserts a detail row below it', async ({ page }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
+    // Tap the first data row (2025–26 season) — not on a link/button.
+    const firstDataRow = page.locator('table.table tbody tr').first();
+    await firstDataRow.click({ position: { x: 10, y: 10 } });
+    // A detail row should now follow the first data row.
+    await expect(page.locator('tr.table-row-detail')).toHaveCount(1);
+  });
+
+  test('detail row shows Level and Location each on their own line', async ({ page }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
+    const firstDataRow = page.locator('table.table tbody tr').first();
+    await firstDataRow.click({ position: { x: 10, y: 10 } });
+    const detailTd = page.locator('tr.table-row-detail td');
+    // Each field is wrapped in its own <div>, so there should be 2 divs
+    // (one for Level, one for Location).
+    await expect(detailTd.locator('div')).toHaveCount(2);
+    // Both labels should be present.
+    await expect(detailTd).toContainText('Level:');
+    await expect(detailTd).toContainText('Location:');
+  });
+
+  test('tapping an expanded row collapses the detail row', async ({ page }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
+    const firstDataRow = page.locator('table.table tbody tr').first();
+    await firstDataRow.click({ position: { x: 10, y: 10 } });
+    await expect(page.locator('tr.table-row-detail')).toHaveCount(1);
+    // Tap again to collapse.
+    await firstDataRow.click({ position: { x: 10, y: 10 } });
+    await expect(page.locator('tr.table-row-detail')).toHaveCount(0);
+  });
+
+  test('detail row is absent on desktop (columns all visible)', async ({ page }) => {
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
+    // On desktop all columns are visible so tapping a row should not produce a detail row.
+    const firstDataRow = page.locator('table.table tbody tr').first();
+    await firstDataRow.click({ position: { x: 10, y: 10 } });
+    await expect(page.locator('tr.table-row-detail')).toHaveCount(0);
+  });
+
+  test('View Photos link is preserved as a working link when its cell is in the detail row', async ({ page }) => {
+    // This test verifies the innerHTML fix: if a cell containing a link ends up
+    // in the detail row the link is present and clickable (not stripped to plain text).
+    // We achieve this by temporarily hiding the Photos column via JS and re-triggering.
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
+    // Hide the Photos column header so mobile-table-expand includes it in the detail row.
+    await page.evaluate(() => {
+      const th = document.querySelector('table.table thead tr th:last-child');
+      th.style.display = 'none';
+    });
+    // Tap the 2023–24 row (last row, which has the "View Photos" link).
+    const lastDataRow = page.locator('table.table tbody tr').last();
+    await lastDataRow.click({ position: { x: 10, y: 10 } });
+    const detailTd = page.locator('tr.table-row-detail td');
+    // The detail row must contain an <a> element (not plain text) for "View Photos".
+    await expect(detailTd.locator('a:has-text("View Photos")')).toHaveCount(1);
+  });
+
+  test('View Photos collapse link still works on mobile', async ({ page }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
+    // The gallery is initially hidden.
+    await expect(page.locator('#gallery2024')).toBeHidden();
+    // Click the "View Photos" link directly.
+    await page.locator('a[href="#gallery2024"]').click();
+    // Bootstrap collapse should make the gallery visible.
+    await expect(page.locator('#gallery2024')).toBeVisible();
+  });
+});
+
+test.describe('Academic page — mobile row expansion', () => {
+  test('tapping a visible course row on mobile inserts a detail row', async ({ page }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await page.goto('/academic.html', { waitUntil: 'domcontentloaded' });
+    // Expand the first course history section so its rows are in the DOM.
+    await page.locator('[aria-controls="ucsdClasses"]').click();
+    await page.locator('#ucsdClasses').waitFor({ state: 'visible' });
+    const firstDataRow = page.locator('#ucsdClasses tbody tr').first();
+    await firstDataRow.click({ position: { x: 10, y: 10 } });
+    await expect(page.locator('tr.table-row-detail')).toHaveCount(1);
+  });
+
+  test('detail row shows Instructor on its own line', async ({ page }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await page.goto('/academic.html', { waitUntil: 'domcontentloaded' });
+    await page.locator('[aria-controls="ucsdClasses"]').click();
+    await page.locator('#ucsdClasses').waitFor({ state: 'visible' });
+    const firstDataRow = page.locator('#ucsdClasses tbody tr').first();
+    await firstDataRow.click({ position: { x: 10, y: 10 } });
+    const detailTd = page.locator('tr.table-row-detail td');
+    // Only the Instructor column is hidden → exactly one <div> line.
+    await expect(detailTd.locator('div')).toHaveCount(1);
+    await expect(detailTd).toContainText('Instructor:');
+  });
+});
