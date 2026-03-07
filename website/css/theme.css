@@ -93,10 +93,6 @@ footer {
   }
 }
 
-/* Athlete page: breathing room after the photo gallery collapses back */
-.row-gallery {
-  margin-bottom: 1.5rem;
-}
 
 /* Academic History anchor targets: offset scroll position for the fixed navbar */
 .theme-showcase h3[id] {
