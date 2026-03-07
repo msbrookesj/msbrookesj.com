@@ -243,6 +243,15 @@ Key flags:
 - **Before opening a PR**, rebase the feature branch onto `main` (`git fetch origin main && git rebase origin/main`) to surface and resolve any conflicts locally before review.
 - **Related changes to the same files** should be in a single commit rather than split across multiple commits — this minimises the number of conflict hunks during a rebase.
 - The repo is configured with `pull.rebase = true` and `rebase.autoStash = true` (see `.git/config`), so `git pull` always rebases rather than merges.
+- **Before committing**, update all applicable supporting files in the same commit. The table below lists what triggers an update to each file:
+
+| Supporting file | Update when… |
+|----------------|--------------|
+| `README.md` | Deploy commands change (new page in `cp -z` step), dev workflow changes |
+| `CLAUDE.md` | Any of the above, plus new conventions, page structure changes, or AI-guidance rules |
+| `website/sitemap.xml` | A page is added or removed |
+| `.lighthouserc.json` | A page is added or removed (add/remove its URL from the `urls` list) |
+| `website/license.html` | A third-party image is added or removed |
 
 ---
 
