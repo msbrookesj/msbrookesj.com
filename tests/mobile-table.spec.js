@@ -191,11 +191,21 @@ test.describe('Athlete page — mobile row expansion', () => {
     await expect(page.locator('#gallery2024')).toBeHidden();
   });
 
-  test('photo gallery is visible on desktop without any interaction', async ({ page }) => {
+  test('View Photos button toggles gallery on desktop', async ({ page }) => {
     await page.setViewportSize(DESKTOP_VIEWPORT);
     await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
-    // .row-gallery.collapse is forced display:block on desktop via theme.css.
+    // Gallery starts hidden on desktop; the "View Photos" button discloses it.
+    await expect(page.locator('#gallery2024')).toBeHidden();
+    const viewPhotosBtn = page.locator('button', { hasText: 'View Photos' });
+    await viewPhotosBtn.click();
     await expect(page.locator('#gallery2024')).toBeVisible();
+    // Row gets aria-expanded when gallery is open.
+    const row2024 = page.locator('tr[data-bs-gallery="gallery2024"]');
+    await expect(row2024).toHaveAttribute('aria-expanded', 'true');
+    // Clicking again hides the gallery.
+    await viewPhotosBtn.click();
+    await expect(page.locator('#gallery2024')).toBeHidden();
+    await expect(row2024).not.toHaveAttribute('aria-expanded');
   });
 });
 
