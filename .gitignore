@@ -2,7 +2,6 @@
 
 # Claude Code — user-specific files (never commit)
 .claude/settings.local.json
-.claude/.precommit-last-evaluated
 
 # Test tooling artifacts
 node_modules/
