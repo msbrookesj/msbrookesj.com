@@ -4,15 +4,46 @@ const { test, expect } = require('@playwright/test');
 const MOBILE_VIEWPORT  = { width: 375, height: 812 };
 const DESKTOP_VIEWPORT = { width: 1024, height: 768 };
 
-// Helper: check the page has no horizontal scrollbar.
-async function expectNoHorizontalOverflow(page) {
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth > document.documentElement.clientWidth
-  );
-  expect(overflow).toBe(false);
-}
+// Every page on the site — must be kept in sync with ALL_PAGES in perf-hints.sh.
+const ALL_PAGES = [
+  { name: 'Home',         path: '/index.html' },
+  { name: 'About',        path: '/about.html' },
+  { name: 'Professional', path: '/professional.html' },
+  { name: 'Academic',     path: '/academic.html' },
+  { name: 'Athlete',      path: '/athlete.html' },
+  { name: '404',          path: '/404.html' },
+  { name: 'License',      path: '/license.html' },
+];
 
-test.describe('Athlete page – competition table mobile rendering', () => {
+// ─── General: no horizontal overflow on any page ───────────────────────────
+// A horizontal scrollbar means some element is wider than the viewport, which
+// breaks mobile usability and fails Core Web Vitals layout checks.
+
+test.describe('All pages — no horizontal overflow', () => {
+  for (const { name, path } of ALL_PAGES) {
+    test(`${name} page has no horizontal overflow on mobile (375 px)`, async ({ page }) => {
+      await page.setViewportSize(MOBILE_VIEWPORT);
+      await page.goto(path, { waitUntil: 'domcontentloaded' });
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth > document.documentElement.clientWidth
+      );
+      expect(overflow).toBe(false);
+    });
+
+    test(`${name} page has no horizontal overflow on desktop (1024 px)`, async ({ page }) => {
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await page.goto(path, { waitUntil: 'domcontentloaded' });
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth > document.documentElement.clientWidth
+      );
+      expect(overflow).toBe(false);
+    });
+  }
+});
+
+// ─── Athlete page: competition table ───────────────────────────────────────
+
+test.describe('Athlete page — competition table mobile rendering', () => {
   test('table is wrapped in .table-responsive', async ({ page }) => {
     await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
     // Without this wrapper the table causes horizontal scroll on narrow screens.
@@ -33,15 +64,11 @@ test.describe('Athlete page – competition table mobile rendering', () => {
     await expect(page.locator('th:has-text("Level")')).toBeVisible();
     await expect(page.locator('th:has-text("Location")')).toBeVisible();
   });
-
-  test('page has no horizontal overflow on mobile', async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
-    await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
-    await expectNoHorizontalOverflow(page);
-  });
 });
 
-test.describe('Academic page – course history tables mobile rendering', () => {
+// ─── Academic page: course history tables ──────────────────────────────────
+
+test.describe('Academic page — course history tables mobile rendering', () => {
   test('all four tables are wrapped in .table-responsive', async ({ page }) => {
     await page.goto('/academic.html', { waitUntil: 'domcontentloaded' });
     // UCSD, Grossmont, TLCA-Grossmont, TLCA-Glendale.
@@ -68,23 +95,13 @@ test.describe('Academic page – course history tables mobile rendering', () => 
     );
     expect(display).not.toBe('none');
   });
-
-  test('page has no horizontal overflow on mobile', async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
-    await page.goto('/academic.html', { waitUntil: 'domcontentloaded' });
-    await expectNoHorizontalOverflow(page);
-  });
 });
 
-test.describe('License page – dependencies table mobile rendering', () => {
+// ─── License page: dependencies table ──────────────────────────────────────
+
+test.describe('License page — dependencies table mobile rendering', () => {
   test('table is wrapped in .table-responsive', async ({ page }) => {
     await page.goto('/license.html', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('.table-responsive table.table')).toHaveCount(1);
-  });
-
-  test('page has no horizontal overflow on mobile', async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
-    await page.goto('/license.html', { waitUntil: 'domcontentloaded' });
-    await expectNoHorizontalOverflow(page);
   });
 });
