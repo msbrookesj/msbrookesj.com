@@ -52,6 +52,17 @@ jobs:
       - run: npm ci
       - run: npm run test:lighthouse
 
+  yaml-syntax:
+    name: YAML Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install yamllint
+      - run: >
+          yamllint
+          -d "{extends: default, rules: {document-start: disable, truthy: disable, line-length: disable, comments-indentation: disable}}"
+          -s .github/workflows/*.yml
+
   perf-hints:
     name: Performance Hints
     runs-on: ubuntu-latest
