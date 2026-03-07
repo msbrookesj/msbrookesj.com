@@ -316,6 +316,8 @@ Key flags:
 
 Project-shared permissions are stored in `.claude/settings.json` and committed to the repository. This pre-authorizes the `gsutil` deploy commands so they run without prompting.
 
+A `PreToolUse` hook on `Bash` commands intercepts `git commit` calls and checks staged changes against the "Keeping supporting files in sync" table above. If any supporting file needs updating, the hook blocks the commit and explains which files to update first.
+
 User-specific overrides belong in `.claude/settings.local.json`, which is gitignored and never committed.
 
 ---

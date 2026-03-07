@@ -7,5 +7,18 @@
       "Bash(/Volumes/Source/google-cloud-sdk/bin/gcloud compute url-maps invalidate-cdn-cache:*)",
       "Bash(grep:*)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "The tool call is: $ARGUMENTS. If this is a 'git commit' command, check the staged changes against the 'Keeping supporting files in sync' table in CLAUDE.md. For each supporting file listed (README.md, CLAUDE.md, sitemap.xml, .lighthouserc.json, tests/perf-hints.sh, tests/mobile-table.spec.js, tests/screenshots.spec.js, website/license.html), determine whether any staged changes trigger an update to that file. If updates are needed, respond with 'block' and explain which files need updating. If no updates are needed or this is not a git commit command, respond with 'approve'."
+          }
+        ]
+      }
+    ]
   }
 }
