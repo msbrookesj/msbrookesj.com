@@ -74,8 +74,13 @@ msbrookesj.com/
 │
 ├── .claude/
 │   ├── settings.json               # Project-shared Claude Code permissions and hooks
-│   └── hooks/
-│       └── session-start.sh        # SessionStart hook: environment detection and setup
+│   ├── hooks/
+│   │   └── session-start.sh        # SessionStart hook: environment detection and setup
+│   └── rules/                      # Path-scoped rules (loaded only when editing matching files)
+│       ├── table-conventions.md    # Mobile-responsive table patterns and row-expand behaviour
+│       ├── structured-data.md      # JSON-LD Person schema for index.html and about.html
+│       ├── image-exif.md           # EXIF metadata policy and piexif example
+│       └── deployment.md           # Manual gsutil/gcloud deploy commands (local only)
 │
 ├── .htmlvalidate.json               # html-validate config
 ├── .lighthouserc.json               # Lighthouse CI config and score thresholds
@@ -129,78 +134,13 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 
 ## Table Conventions
 
-Every `<table>` in the site must be mobile-friendly. A table that overflows its container horizontally causes a page-level horizontal scrollbar on mobile, which breaks usability and fails Core Web Vitals layout checks.
-
-**Rules — apply to every `<table>` added to the site:**
-
-1. **Always wrap in `<div class="table-responsive">`.**  Bootstrap's `.table-responsive` constrains overflow to the wrapper and lets the table scroll horizontally within it rather than breaking the page layout.
-
-2. **Hide non-essential columns on mobile.** If a table has more than ~4 columns, identify which columns are least important to mobile readers and mark them with `d-none d-md-table-cell` on **both** the `<th>` and every corresponding `<td>` in that column. This hides the column below Bootstrap's `md` breakpoint (768 px) and shows it on larger screens.
-
-   ```html
-   <th scope="col" class="d-none d-md-table-cell">Location</th>
-   ...
-   <td class="td-middle d-none d-md-table-cell">Las Vegas, NV</td>
-   ```
-
-3. **When there are too many cells to mark individually** (e.g. a multi-row course history table), use a CSS `nth-child` rule scoped to the table's containing `id` in `theme.css` instead. Example — academic course tables hide columns 4 (Instructor) and 5 (Academic Period):
-
-   ```css
-   @media (max-width: 767.98px) {
-     #ucsdClasses th:nth-child(4),
-     #ucsdClasses td:nth-child(4),
-     #ucsdClasses th:nth-child(5),
-     #ucsdClasses td:nth-child(5) { display: none; }
-   }
-   ```
-
-**Currently implemented:**
-
-| Page | Table | Mobile strategy |
-|------|-------|----------------|
-| `athlete.html` | Competition gallery | `d-none d-md-table-cell` on Level, Location, and Media columns; Media `<th>` also carries `data-detail-exclude` so the column is excluded from the mobile detail row (its purpose is implied by the gallery auto-expanding on tap); 2023–24 row carries `data-bs-gallery="gallery2024"` — on mobile, tapping the row auto-expands the photo carousel; on desktop, the dedicated Media column contains a "View Photos" button that toggles the gallery via Bootstrap Collapse and stays visually pressed (filled secondary) while the gallery is open |
-| `academic.html` | 4 × course history | CSS `nth-child(4)` and `nth-child(5)` in `theme.css` hide Instructor and Academic Period columns; Academic Period appears in the row-expand detail row |
-| `license.html` | Dependencies | `table-responsive` only (4 short columns fit without hiding) |
-
-**Mobile row-expand (detail rows)** — `website/js/mobile-table-expand.js` is loaded on pages with tables. On mobile (< 768 px) it makes every `<tbody>` row tappable: tapping inserts a `<tr class="table-row-detail">` directly below the row, containing one `<div>` per hidden column formatted as `**Label:** value`. Key implementation notes:
-
-- Each hidden field is wrapped in its own `<div>` so fields appear on separate lines (not dot-joined on one line).
-- Cell values are read via `innerHTML` (not `textContent`) so links and other interactive elements inside hidden cells remain fully functional inside the detail row. Hidden cells whose `innerHTML` is empty are skipped entirely (not shown as "—"), preventing noise from columns like Media that have content in only some rows.
-- Columns whose `<th>` carries a `data-detail-exclude` attribute are excluded entirely from the detail row, regardless of whether their cells contain content. Use this for columns whose purpose is already implied on mobile (e.g. a Media column where the gallery auto-expands on row tap).
-- If a `<tr>` carries a `data-bs-gallery="<id>"` attribute, tapping to expand also shows the Bootstrap Collapse element with that id (and hides it again on collapse). On desktop, the gallery starts collapsed and is toggled by a visible "View Photos" button (hidden on mobile via `d-none d-md-inline`) that uses Bootstrap's `data-bs-toggle="collapse"`. The script listens for Bootstrap `shown.bs.collapse` / `hidden.bs.collapse` events to sync `aria-expanded` on the parent row, keeping the table-hover highlight in sync with disclosure state.
-- Tapping the expanded row a second time removes the detail row.
-- Resizing to desktop width (≥ 768 px) auto-collapses all open detail rows and their associated galleries.
-- Clicks on `<a>` or `<button>` elements inside a row pass through to their default handlers and do **not** trigger row expansion.
-
-**Regression guards** — two layers prevent regressions:
-- `tests/perf-hints.sh` — static grep checks that `table-responsive` wrappers and column-hiding patterns are present in each affected file.
-- `tests/mobile-table.spec.js` — Playwright tests that verify no horizontal overflow on **every** page at both mobile (375 px) and desktop (1024 px) viewports, plus per-page column-visibility assertions, and row-expand behaviour (tap to expand, per-field `<div>` lines, gallery auto-expand, tap to collapse, desktop no-expand guard).
+Every `<table>` must be wrapped in `<div class="table-responsive">` and have non-essential columns hidden on mobile. Full rules, current implementation table, mobile row-expand behaviour, and regression guards are in [`.claude/rules/table-conventions.md`](.claude/rules/table-conventions.md) — loaded automatically when editing HTML, CSS, JS, or table test files.
 
 ---
 
 ## Structured Data (JSON-LD)
 
-`index.html` and `about.html` each include a `<script type="application/ld+json">` block in the `<head>` that declares a Schema.org `Person` entity. This is machine-readable metadata — invisible to visitors — that helps AI systems, search engines, and knowledge graphs unambiguously identify which Brooke Ryan this site belongs to.
-
-The block should remain consistent across both pages and include:
-
-| Field | Value |
-|-------|-------|
-| `@type` | `"Person"` |
-| `name` | `"Brooke Ryan"` |
-| `alternateName` | `"msbrookesj"` |
-| `url` | `"https://www.msbrookesj.com/"` |
-| `image` | Current profile photo URL (use `www.msbrookesj.com`) |
-| `description` | One-sentence summary used for disambiguation |
-| `jobTitle` | Current job title |
-| `worksFor` | Current employer (Organization) |
-| `alumniOf` | UCSD (CollegeOrUniversity) |
-| `address` | San Jose, CA |
-| `sameAs` | All social profile URLs (LinkedIn, Instagram, Facebook, YouTube, GitHub) |
-
-**If Brooke's job title, employer, or social profile URLs change**, update the JSON-LD block in both `index.html` and `about.html` at the same time, keeping them in sync.
-
-**Do not** use `b1ryan.com` in the JSON-LD `url` or `image` fields — always use `www.msbrookesj.com`.
+`index.html` and `about.html` include `<script type="application/ld+json">` blocks with Schema.org `Person` data. Keep them in sync. Full field list and rules are in [`.claude/rules/structured-data.md`](.claude/rules/structured-data.md) — loaded automatically when editing those two files.
 
 ---
 
@@ -222,72 +162,17 @@ Each page sets its own nav item as active. When adding a new page or editing the
 
 ### Image Licensing and EXIF Policy
 
-All images must have EXIF metadata set correctly before being committed. Use `piexif` (Python) to manage EXIF data.
-
-**Original images by Brooke Ryan** — set the following EXIF fields:
-- `Copyright` → `© 2026 Brooke Ryan`
-- `Artist` → `Brooke Ryan`
-
-**Third-party images** — preserve any existing `Copyright` and `Artist` fields exactly as provided by the original photographer. Do **not** overwrite third-party copyright with Brooke's name. Third-party images must be credited in `website/license.html` under "Photography Credits".
-
-Currently, `website/assets/athlete/slideshow/2024-02-21-{1–10}.jpg` are © KrPhotogs Photography LLC and are credited accordingly in `license.html`.
-
-**Location and device info** — strip the following EXIF fields from all images before committing:
-- `GPS` IFD (coordinates)
-- `HostComputer` (device name)
-- `ImageDescription` (may contain venue/event names)
-
-Example script to apply to a new image `path.jpg` owned by Brooke:
-
-```python
-import piexif
-
-exif = piexif.load("path.jpg")
-exif["GPS"] = {}
-exif["0th"].pop(piexif.ImageIFD.HostComputer, None)
-exif["0th"].pop(piexif.ImageIFD.ImageDescription, None)
-exif["0th"][piexif.ImageIFD.Copyright] = "© 2026 Brooke Ryan".encode()
-exif["0th"][piexif.ImageIFD.Artist] = "Brooke Ryan".encode()
-piexif.insert(piexif.dump(exif), "path.jpg")
-```
+All images must have EXIF metadata set correctly (copyright, artist, GPS stripped) before being committed. Full policy, third-party image rules, and example `piexif` script are in [`.claude/rules/image-exif.md`](.claude/rules/image-exif.md) — loaded automatically when working in `website/assets/` or `website/license.html`.
 
 ---
 
 ## Deployment
 
-Merging to `main` triggers an automatic deploy via `.github/workflows/deploy.yml`, which authenticates with GCP using the `GCP_SA_KEY` repository secret and runs the three-step deploy below.
+Merging to `main` triggers an automatic deploy via `.github/workflows/deploy.yml`. Manual deploy uses `gsutil rsync` + `gsutil cp -z` + CDN cache invalidation — full commands, flags, and safety rules are in [`.claude/rules/deployment.md`](.claude/rules/deployment.md) — loaded automatically when editing `deploy.yml` or `README.md`.
 
-**Manual deploy** (fallback or out-of-band) — run from the repository root with `gsutil rsync` to a Google Cloud Storage bucket:
+**When adding a new HTML page**, add it to the `cp -z` command in the deploy script (step 2).
 
-```bash
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d website/ gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js,webmanifest" website/404.html website/about.html website/academic.html website/athlete.html website/index.html website/license.html website/professional.html website/site.webmanifest gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" website/css/ website/dependencies/ gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gcloud compute url-maps invalidate-cdn-cache ryanfam18-com --global --path "/*"
-```
-
-**One-time GCS NotFound configuration** (run once after first deploying `404.html`; only needs to be re-run if the bucket web config is ever reset):
-
-```bash
-/Volumes/Source/google-cloud-sdk/bin/gsutil web set -e 404.html gs://b1ryan.com/
-```
-
-`gsutil` and `gcloud` are not on the shell PATH — always use the absolute path `/Volumes/Source/google-cloud-sdk/bin/gsutil` and `/Volumes/Source/google-cloud-sdk/bin/gcloud`.
-
-This is a three-step process:
-1. `rsync` — syncs all files from `website/` and deletes remote files not present locally. No exclusions are needed — all test tooling and repo metadata live outside `website/`.
-2. `cp -z` — re-uploads HTML/CSS/JS with `Content-Encoding: gzip` so GCS serves them compressed to browsers
-3. `invalidate-cdn-cache` — flushes the Cloud CDN cache for the `ryanfam18-com` URL map so changes are visible immediately
-
-`gsutil cp` does not support `-x`. Step 2 uses **explicit paths** (never `website/` as a catch-all) to control exactly which files are gzip-encoded. Do not change the `cp` commands to use `website/` as the sole source.
-
-Key flags:
-- `-m` — parallel (multi-threaded) transfers
-- `-r` — recursive
-- `-d` — delete remote files not present locally (destructive — double-check before running)
-- `-z` — compresses named file types and sets `Content-Encoding: gzip` on the GCS object
-
-**When adding a new HTML page**, add it to the `cp -z` command in step 2.
+Deploy commands use absolute paths (`/Volumes/Source/google-cloud-sdk/bin/`) and are only available locally — not on Claude Code on the web.
 
 ---
 
@@ -305,7 +190,7 @@ Key flags:
 | Supporting file | Update when… |
 |----------------|--------------|
 | `README.md` | Deploy commands change (new page in `cp -z` step), dev workflow changes |
-| `CLAUDE.md` | Any of the above, plus new conventions, page structure changes, or AI-guidance rules |
+| `CLAUDE.md` / `.claude/rules/*.md` | Any of the above, plus new conventions, page structure changes, or AI-guidance rules |
 | `website/sitemap.xml` | A page is added or removed |
 | `.lighthouserc.json` | A page is added or removed (add/remove its URL from the `urls` list) |
 | `tests/perf-hints.sh` | A page is added or removed (add/remove it from the `ALL_PAGES` array); a table is added or removed (add/remove its `table-responsive` and column-hiding checks) |
@@ -345,7 +230,7 @@ This means sessions on Claude Code on the web are self-bootstrapping — no manu
 - **Do not** run `gsutil rsync -d` without verifying the local state matches intent — the `-d` flag deletes remote files.
 - **Do not** run `gsutil cp -r website/` (with `website/` as the sole source) — it will upload all files including any in-progress pages. Always use the documented deploy script, which lists explicit paths in the `cp` steps.
 - **Do not** use `b1ryan.com` or any other alias as the domain in `<link rel="canonical">`, Open Graph / Twitter Card tags, or `sitemap.xml`. The authoritative hostname is `www.msbrookesj.com`. The GCS bucket name `b1ryan.com` is an infrastructure detail and must not appear in site content URLs.
-- **Do not** add a `<table>` without wrapping it in `<div class="table-responsive">`. An unwrapped table causes a page-level horizontal scrollbar on mobile. See the **Table Conventions** section for the full pattern including column hiding.
+- **Do not** add a `<table>` without wrapping it in `<div class="table-responsive">`. An unwrapped table causes a page-level horizontal scrollbar on mobile. See [`.claude/rules/table-conventions.md`](.claude/rules/table-conventions.md) for the full pattern including column hiding.
 
 ---
 
@@ -402,8 +287,6 @@ A separate workflow (`.github/workflows/screenshots.yml`) captures full-page scr
 9. Add the new page to `ALL_PAGES` in `tests/mobile-table.spec.js` (the overflow loop covers it automatically once it's in the list).
 10. Add the new page to `ALL_PAGES` in `tests/screenshots.spec.js`. If the page has Bootstrap collapse sections, also add it to `PAGES_WITH_DISCLOSURES`.
 
-Note: the JSON-LD `Person` block lives only on `index.html` and `about.html` — do not copy it to content subpages.
-
 ### Edit content on an existing page
 Open the relevant HTML file and edit the content inside the main `col-md-8` content column. Avoid changing the surrounding Bootstrap scaffold.
 
@@ -414,4 +297,4 @@ Edit `website/css/theme.css`. Do not create new CSS files.
 See the **Testing** section above. Run `npm run test:html` and `npm run test:a11y` locally before pushing to catch issues early.
 
 ### Deploy
-Run the `gsutil rsync` command from `README.md` from the repository root after verifying changes look correct locally.
+See [`.claude/rules/deployment.md`](.claude/rules/deployment.md) for the full deploy commands. Only available locally (not on Claude Code on the web).
