@@ -75,29 +75,33 @@ test.describe('Academic page — course history tables mobile rendering', () => 
     await expect(page.locator('.table-responsive table.table')).toHaveCount(4);
   });
 
-  test('Instructor and Academic Period columns are hidden on mobile', async ({ page }) => {
+  test('Instructor, Academic Period, and Course Description columns are hidden on mobile', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/academic.html', { waitUntil: 'domcontentloaded' });
-    // Both columns are hidden via CSS nth-child(4) and nth-child(5) in theme.css.
+    // All three columns are hidden via CSS nth-child(4), nth-child(5), nth-child(6) in theme.css.
     // getComputedStyle reads the element's own cascaded display value
     // regardless of whether the parent collapse div is open or closed.
-    const [instructorDisplay, periodDisplay] = await page.evaluate(() => [
+    const [instructorDisplay, periodDisplay, catalogDisplay] = await page.evaluate(() => [
       window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(4)')).display,
       window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(5)')).display,
+      window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(6)')).display,
     ]);
     expect(instructorDisplay).toBe('none');
     expect(periodDisplay).toBe('none');
+    expect(catalogDisplay).toBe('none');
   });
 
-  test('Instructor and Academic Period columns are visible on desktop', async ({ page }) => {
+  test('Instructor, Academic Period, and Course Description columns are visible on desktop', async ({ page }) => {
     await page.setViewportSize(DESKTOP_VIEWPORT);
     await page.goto('/academic.html', { waitUntil: 'domcontentloaded' });
-    const [instructorDisplay, periodDisplay] = await page.evaluate(() => [
+    const [instructorDisplay, periodDisplay, catalogDisplay] = await page.evaluate(() => [
       window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(4)')).display,
       window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(5)')).display,
+      window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(6)')).display,
     ]);
     expect(instructorDisplay).not.toBe('none');
     expect(periodDisplay).not.toBe('none');
+    expect(catalogDisplay).not.toBe('none');
   });
 });
 
@@ -221,7 +225,7 @@ test.describe('Academic page — mobile row expansion', () => {
     await expect(page.locator('tr.table-row-detail')).toHaveCount(1);
   });
 
-  test('detail row shows Instructor and Academic Period each on their own line', async ({ page }) => {
+  test('detail row shows Instructor, Academic Period, and Course Description each on their own line', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/academic.html', { waitUntil: 'domcontentloaded' });
     await page.locator('[aria-controls="ucsdClasses"]').click();
@@ -229,9 +233,11 @@ test.describe('Academic page — mobile row expansion', () => {
     const firstDataRow = page.locator('#ucsdClasses tbody tr').first();
     await firstDataRow.click({ position: { x: 10, y: 10 } });
     const detailTd = page.locator('tr.table-row-detail td');
-    // Instructor and Academic Period are both hidden → exactly two <div> lines.
-    await expect(detailTd.locator('div')).toHaveCount(2);
+    // Instructor, Academic Period, and Course Description (catalog link) are all hidden →
+    // three <div> lines (the first row, PHIL 164, has a catalog link so all three show).
+    await expect(detailTd.locator('div')).toHaveCount(3);
     await expect(detailTd).toContainText('Instructor:');
     await expect(detailTd).toContainText('Academic Period:');
+    await expect(detailTd).toContainText('Course Description:');
   });
 });

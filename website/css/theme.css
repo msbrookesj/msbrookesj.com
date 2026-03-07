@@ -93,26 +93,32 @@ footer {
   vertical-align: middle;
 }
 
-/* Academic course history tables: hide the Instructor (4th) and Academic
-   Period (5th) columns on mobile to prevent horizontal overflow on narrow
-   screens.  The three remaining visible columns (Dept., #, Course
-   Description) fit comfortably within a 375 px viewport.  Academic Period
-   moves into the mobile row-expand detail row.  Using nth-child rather than
-   per-cell d-none classes because there are ~60 data cells across the four
-   tables. */
+/* Academic course history tables: hide the Instructor (4th), Academic
+   Period (5th), and Course Description link (6th) columns on mobile to
+   prevent horizontal overflow on narrow screens.  The three remaining
+   visible columns (Dept., #, Course Name) fit comfortably within a 375 px
+   viewport.  Academic Period and the Course Description link move into the
+   mobile row-expand detail row.  Using nth-child rather than per-cell
+   d-none classes because there are ~60+ data cells across the four tables. */
 @media (max-width: 767.98px) {
   #ucsdClasses th:nth-child(4),
   #ucsdClasses td:nth-child(4),
   #ucsdClasses th:nth-child(5),
   #ucsdClasses td:nth-child(5),
+  #ucsdClasses th:nth-child(6),
+  #ucsdClasses td:nth-child(6),
   #grossmontClasses th:nth-child(4),
   #grossmontClasses td:nth-child(4),
   #grossmontClasses th:nth-child(5),
   #grossmontClasses td:nth-child(5),
+  #grossmontClasses th:nth-child(6),
+  #grossmontClasses td:nth-child(6),
   #tlcaClasses th:nth-child(4),
   #tlcaClasses td:nth-child(4),
   #tlcaClasses th:nth-child(5),
-  #tlcaClasses td:nth-child(5) {
+  #tlcaClasses td:nth-child(5),
+  #tlcaClasses th:nth-child(6),
+  #tlcaClasses td:nth-child(6) {
     display: none;
   }
 }

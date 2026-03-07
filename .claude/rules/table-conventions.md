@@ -39,7 +39,7 @@ Every `<table>` in the site must be mobile-friendly. A table that overflows its 
 | Page | Table | Mobile strategy |
 |------|-------|----------------|
 | `athlete.html` | Competition gallery | `d-none d-md-table-cell` on Level, Location, and Media columns; Media `<th>` also carries `data-detail-exclude` so the column is excluded from the mobile detail row (its purpose is implied by the gallery auto-expanding on tap); 2023–24 row carries `data-bs-gallery="gallery2024"` — on mobile, tapping the row auto-expands the photo carousel; on desktop, the dedicated Media column contains a "View Photos" button that toggles the gallery via Bootstrap Collapse and stays visually pressed (filled secondary) while the gallery is open |
-| `academic.html` | 4 × course history | CSS `nth-child(4)` and `nth-child(5)` in `theme.css` hide Instructor and Academic Period columns; Academic Period appears in the row-expand detail row |
+| `academic.html` | 4 × course history | CSS `nth-child(4)`, `nth-child(5)`, and `nth-child(6)` in `theme.css` hide Instructor, Academic Period, and Course Description (catalog link) columns; Academic Period and Course Description appear in the row-expand detail row |
 | `license.html` | Dependencies | `table-responsive` only (4 short columns fit without hiding) |
 
 **Mobile row-expand (detail rows)** — `website/js/mobile-table-expand.js` is loaded on pages with tables. On mobile (< 768 px) it makes every `<tbody>` row tappable: tapping inserts a `<tr class="table-row-detail">` directly below the row, containing one `<div>` per hidden column formatted as `**Label:** value`. Key implementation notes:
