@@ -36,7 +36,7 @@ jobs:
 
       - name: Upload HTML with gzip encoding
         run: |
-          gsutil -m cp -z "html,css,js" \
+          gsutil -m cp -z "html,css,js,webmanifest" \
             website/404.html \
             website/about.html \
             website/academic.html \
@@ -44,6 +44,7 @@ jobs:
             website/index.html \
             website/license.html \
             website/professional.html \
+            website/site.webmanifest \
             gs://b1ryan.com/
 
       - name: Upload CSS and JS with gzip encoding
