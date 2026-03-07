@@ -108,6 +108,25 @@ check_present "website/athlete.html" \
   'Non-essential table columns hidden on mobile (d-none d-md-table-cell)'
 
 echo ""
+echo "-- academic.html: mobile table layout --"
+# All four course history tables must be wrapped in table-responsive.
+check_present "website/academic.html" \
+  'class="table-responsive"' \
+  'Course history tables wrapped in table-responsive'
+
+# The Instructor column (4th) is hidden via CSS nth-child in theme.css rather
+# than per-cell d-none classes (too many cells).  Verify the rule exists.
+check_present "website/css/theme.css" \
+  'nth-child\(4\)' \
+  'Academic Instructor column hidden on mobile via CSS nth-child (theme.css)'
+
+echo ""
+echo "-- license.html: mobile table layout --"
+check_present "website/license.html" \
+  'class="table-responsive"' \
+  'Dependencies table wrapped in table-responsive'
+
+echo ""
 if [ "$FAIL" -eq 0 ]; then
   echo "All checks passed."
 else

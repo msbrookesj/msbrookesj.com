@@ -93,6 +93,22 @@ footer {
   vertical-align: middle;
 }
 
+/* Academic course history tables: hide the Instructor column (4th) on mobile
+   to prevent horizontal overflow on narrow screens.  The three remaining
+   visible columns (Dept., #, Course Description, Academic Period) fit
+   comfortably within a 375 px viewport.  Using nth-child rather than per-cell
+   d-none classes because there are ~60 data cells across the four tables. */
+@media (max-width: 767.98px) {
+  #ucsdClasses th:nth-child(4),
+  #ucsdClasses td:nth-child(4),
+  #grossmontClasses th:nth-child(4),
+  #grossmontClasses td:nth-child(4),
+  #tlcaClasses th:nth-child(4),
+  #tlcaClasses td:nth-child(4) {
+    display: none;
+  }
+}
+
 
 /* Underline inline links so they're distinguishable without relying on color alone (WCAG 1.4.1) */
 p a, li a {
