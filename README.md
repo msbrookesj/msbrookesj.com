@@ -43,12 +43,16 @@ npm run test:perf-hints
 # Lighthouse CI — performance, accessibility, best practices, SEO scores
 npm run test:lighthouse
 
+# Full-page screenshots of every page at desktop + mobile viewports
+# (saved to screenshots/ — gitignored)
+npm run screenshots
+
 # Link checking (lychee) — easiest to let CI run this; or install lychee locally:
 # https://github.com/lycheeverse/lychee
 lychee --config .lychee.toml website/*.html
 ```
 
-CI runs all four checks automatically on every push and pull request via GitHub Actions. Merging to `main` triggers an automatic deploy via `.github/workflows/deploy.yml`.
+CI runs all four test checks automatically on every push and pull request via GitHub Actions. A separate screenshots workflow captures full-page screenshots of every page at desktop and mobile viewports, uploaded as downloadable artifacts (90-day retention). Merging to `main` triggers an automatic deploy via `.github/workflows/deploy.yml`.
 
 ### Keeping supporting files in sync
 
