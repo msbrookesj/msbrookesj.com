@@ -99,4 +99,4 @@ jobs:
           git rm -rf --cached . >/dev/null 2>&1 || true
           git add -f screenshots/
           git commit -m "Screenshots from ${GITHUB_REF_NAME} @ ${GITHUB_SHA::7}"
-          git push --force origin screenshots-tmp:screenshots
+          git push --force origin screenshots-tmp:screenshots-main
