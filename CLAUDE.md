@@ -34,7 +34,13 @@ msbrookesj.com/
 │   ├── athlete.html                # Figure skating history
 │   ├── 404.html                    # Custom "Page Not Found" error page (configured in GCS)
 │   ├── sitemap.xml                 # XML sitemap for search engine indexing
-│   ├── favicon.ico
+│   ├── favicon.ico                 # Legacy ICO icon (all browsers)
+│   ├── favicon-16x16.png           # 16×16 PNG tab icon
+│   ├── favicon-32x32.png           # 32×32 PNG tab icon (high-DPI)
+│   ├── apple-touch-icon.png        # 180×180 iOS home screen icon
+│   ├── android-chrome-192x192.png  # 192×192 Android / PWA icon
+│   ├── android-chrome-512x512.png  # 512×512 Android splash / PWA icon
+│   ├── site.webmanifest            # Web app manifest (ties Android/PWA icons together)
 │   │
 │   ├── css/
 │   │   └── theme.css               # Footer layout, social icon hover colors, .page-image, .section-card
@@ -97,7 +103,7 @@ There is no Sass/Less, no TypeScript, no JS framework, and no server-side code. 
 
 Every HTML page follows the same structural pattern:
 
-1. **`<head>`** — `bootstrap.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`), and a `<script type="application/ld+json">` block with Schema.org `Person` structured data (see below). `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages. **All absolute URLs in these tags must use `https://www.msbrookesj.com/` — never `b1ryan.com` or any other alias.**
+1. **`<head>`** — `bootstrap.min.css`, `theme.css`, Font Awesome (3 files), viewport meta tag, page title, `<link rel="canonical">`, Open Graph / Twitter Card meta tags (`og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`), favicon `<link>` tags (`favicon.ico`, `favicon-32x32.png`, `favicon-16x16.png`, `apple-touch-icon.png`, `site.webmanifest`), and a `<script type="application/ld+json">` block with Schema.org `Person` structured data (see below). `index.html` additionally loads `jumbotron.css`. Do not add or remove stylesheets without applying the same change to all pages. **All absolute URLs in these tags must use `https://www.msbrookesj.com/` — never `b1ryan.com` or any other alias.**
 2. **Fixed top navbar** — Links to About, Professional, Academic, Athlete. Active page highlighted with `class="active"`.
 3. **Main content** — Typically two Bootstrap columns: `col-md-8` (text) and `col-md-4` (image). Pages with no sidebar image (e.g., `license.html`) use a single `col-md-12` column spanning the full width.
 4. **Footer** — Three-column flexbox layout: social media icons on the left (LinkedIn, Instagram, Facebook, YouTube, GitHub) with a "FIND ME" label above them, copyright centered, and brand/tech icons on the right (Bootstrap, Font Awesome, Google Cloud, Claude) with a "BUILT WITH" label above them.
@@ -198,7 +204,7 @@ Merging to `main` triggers an automatic deploy via `.github/workflows/deploy.yml
 
 ```bash
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m rsync -r -d website/ gs://b1ryan.com/ && \
-/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js" website/404.html website/about.html website/academic.html website/athlete.html website/index.html website/license.html website/professional.html gs://b1ryan.com/ && \
+/Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -z "html,css,js,webmanifest" website/404.html website/about.html website/academic.html website/athlete.html website/index.html website/license.html website/professional.html website/site.webmanifest gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gsutil -m cp -r -z "css,js" website/css/ website/dependencies/ gs://b1ryan.com/ && \
 /Volumes/Source/google-cloud-sdk/bin/gcloud compute url-maps invalidate-cdn-cache ryanfam18-com --global --path "/*"
 ```
