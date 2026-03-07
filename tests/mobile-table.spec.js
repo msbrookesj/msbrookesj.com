@@ -75,25 +75,29 @@ test.describe('Academic page — course history tables mobile rendering', () => 
     await expect(page.locator('.table-responsive table.table')).toHaveCount(4);
   });
 
-  test('Instructor column is hidden on mobile', async ({ page }) => {
+  test('Instructor and Academic Period columns are hidden on mobile', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/academic.html', { waitUntil: 'domcontentloaded' });
-    // The column is hidden via CSS nth-child(4) in theme.css.
+    // Both columns are hidden via CSS nth-child(4) and nth-child(5) in theme.css.
     // getComputedStyle reads the element's own cascaded display value
     // regardless of whether the parent collapse div is open or closed.
-    const display = await page.evaluate(
-      () => window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(4)')).display
-    );
-    expect(display).toBe('none');
+    const [instructorDisplay, periodDisplay] = await page.evaluate(() => [
+      window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(4)')).display,
+      window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(5)')).display,
+    ]);
+    expect(instructorDisplay).toBe('none');
+    expect(periodDisplay).toBe('none');
   });
 
-  test('Instructor column is visible on desktop', async ({ page }) => {
+  test('Instructor and Academic Period columns are visible on desktop', async ({ page }) => {
     await page.setViewportSize(DESKTOP_VIEWPORT);
     await page.goto('/academic.html', { waitUntil: 'domcontentloaded' });
-    const display = await page.evaluate(
-      () => window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(4)')).display
-    );
-    expect(display).not.toBe('none');
+    const [instructorDisplay, periodDisplay] = await page.evaluate(() => [
+      window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(4)')).display,
+      window.getComputedStyle(document.querySelector('#ucsdClasses th:nth-child(5)')).display,
+    ]);
+    expect(instructorDisplay).not.toBe('none');
+    expect(periodDisplay).not.toBe('none');
   });
 });
 
@@ -156,33 +160,41 @@ test.describe('Athlete page — mobile row expansion', () => {
     await expect(page.locator('tr.table-row-detail')).toHaveCount(0);
   });
 
-  test('View Photos link is preserved as a working link when its cell is in the detail row', async ({ page }) => {
-    // This test verifies the innerHTML fix: if a cell containing a link ends up
-    // in the detail row the link is present and clickable (not stripped to plain text).
-    // We achieve this by temporarily hiding the Photos column via JS and re-triggering.
+  test('tapping the 2023–24 row on mobile auto-expands the photo gallery', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
-    // Hide the Photos column header so mobile-table-expand includes it in the detail row.
-    await page.evaluate(() => {
-      const th = document.querySelector('table.table thead tr th:last-child');
-      th.style.display = 'none';
-    });
-    // Tap the 2023–24 row (last row, which has the "View Photos" link).
-    const lastDataRow = page.locator('table.table tbody tr').last();
-    await lastDataRow.click({ position: { x: 10, y: 10 } });
-    const detailTd = page.locator('tr.table-row-detail td');
-    // The detail row must contain an <a> element (not plain text) for "View Photos".
-    await expect(detailTd.locator('a:has-text("View Photos")')).toHaveCount(1);
+    // Gallery starts collapsed on mobile.
+    await expect(page.locator('#gallery2024')).toBeHidden();
+    // Tap the 2023–24 row — not on a link.
+    const row2024 = page.locator('table.table tbody tr[data-bs-gallery="gallery2024"]');
+    await row2024.click({ position: { x: 10, y: 10 } });
+    // Gallery should now be visible.
+    await expect(page.locator('#gallery2024')).toBeVisible();
   });
 
-  test('View Photos collapse link still works on mobile', async ({ page }) => {
+  test('tapping the expanded 2023–24 row on mobile collapses the gallery again', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
-    // The gallery is initially hidden.
+    // Use the stable attribute selector — avoids re-resolving to the inserted detail row.
+    const row2024 = page.locator('table.table tbody tr[data-bs-gallery="gallery2024"]');
+    await row2024.click({ position: { x: 10, y: 10 } });
+    // Wait for Bootstrap's show animation to fully complete before tapping again.
+    // Bootstrap's Collapse.hide() is a no-op while _isTransitioning is true, so
+    // clicking a second time mid-animation would silently do nothing. The animation
+    // is done once the element has class="collapse show" with no "collapsing" class.
+    await page.waitForFunction(() => {
+      const el = document.getElementById('gallery2024');
+      return el && el.classList.contains('show') && !el.classList.contains('collapsing');
+    });
+    // Tap again to collapse.
+    await row2024.click({ position: { x: 10, y: 10 } });
     await expect(page.locator('#gallery2024')).toBeHidden();
-    // Click the "View Photos" link directly.
-    await page.locator('a[href="#gallery2024"]').click();
-    // Bootstrap collapse should make the gallery visible.
+  });
+
+  test('photo gallery is visible on desktop without any interaction', async ({ page }) => {
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await page.goto('/athlete.html', { waitUntil: 'domcontentloaded' });
+    // .row-gallery.collapse is forced display:block on desktop via theme.css.
     await expect(page.locator('#gallery2024')).toBeVisible();
   });
 });
@@ -199,7 +211,7 @@ test.describe('Academic page — mobile row expansion', () => {
     await expect(page.locator('tr.table-row-detail')).toHaveCount(1);
   });
 
-  test('detail row shows Instructor on its own line', async ({ page }) => {
+  test('detail row shows Instructor and Academic Period each on their own line', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/academic.html', { waitUntil: 'domcontentloaded' });
     await page.locator('[aria-controls="ucsdClasses"]').click();
@@ -207,8 +219,9 @@ test.describe('Academic page — mobile row expansion', () => {
     const firstDataRow = page.locator('#ucsdClasses tbody tr').first();
     await firstDataRow.click({ position: { x: 10, y: 10 } });
     const detailTd = page.locator('tr.table-row-detail td');
-    // Only the Instructor column is hidden → exactly one <div> line.
-    await expect(detailTd.locator('div')).toHaveCount(1);
+    // Instructor and Academic Period are both hidden → exactly two <div> lines.
+    await expect(detailTd.locator('div')).toHaveCount(2);
     await expect(detailTd).toContainText('Instructor:');
+    await expect(detailTd).toContainText('Academic Period:');
   });
 });

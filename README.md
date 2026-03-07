@@ -8,6 +8,7 @@ This is my little slice of the internet — built by hand, hosted in the cloud.
 <img src="favicon.svg" width="80" height="80" alt="BR monogram logo"/>
 
 ![CI](https://github.com/msbrookesj/msbrookesj.com/actions/workflows/test.yml/badge.svg)
+![Screenshots](https://github.com/msbrookesj/msbrookesj.com/actions/workflows/screenshots.yml/badge.svg)
 ![Deploy](https://github.com/msbrookesj/msbrookesj.com/actions/workflows/deploy.yml/badge.svg)
 ![HTML5](https://img.shields.io/badge/HTML5-static-orange)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.3-7952B3)
@@ -43,12 +44,16 @@ npm run test:perf-hints
 # Lighthouse CI — performance, accessibility, best practices, SEO scores
 npm run test:lighthouse
 
+# Full-page screenshots of every page at desktop + mobile viewports
+# (saved to screenshots/ — gitignored)
+npm run screenshots
+
 # Link checking (lychee) — easiest to let CI run this; or install lychee locally:
 # https://github.com/lycheeverse/lychee
 lychee --config .lychee.toml website/*.html
 ```
 
-CI runs all four checks automatically on every push and pull request via GitHub Actions. Merging to `main` triggers an automatic deploy via `.github/workflows/deploy.yml`.
+CI runs all four test checks automatically on every push and pull request via GitHub Actions. A separate screenshots workflow captures full-page screenshots of every page at desktop and mobile viewports, uploaded as downloadable artifacts (90-day retention). For pull requests it also pushes screenshots to a dedicated `screenshots/pr-<N>` branch and appends a link to the PR description; the branch is deleted automatically when the PR closes. Non-PR pushes update the shared `screenshots` branch. Merging to `main` triggers an automatic deploy via `.github/workflows/deploy.yml`.
 
 ### Keeping supporting files in sync
 
@@ -62,6 +67,7 @@ Before committing, update all applicable supporting files in the same commit:
 | `.lighthouserc.json` | A page is added or removed |
 | `tests/perf-hints.sh` | A page is added or removed (`ALL_PAGES` array); a table is added or removed |
 | `tests/mobile-table.spec.js` | A page is added or removed (`ALL_PAGES` array at top of file); a table is added or removed |
+| `tests/screenshots.spec.js` | A page is added or removed (`ALL_PAGES`); a page gains or loses collapse sections (`PAGES_WITH_DISCLOSURES`) |
 | `website/license.html` | A third-party image is added or removed |
 
 ---

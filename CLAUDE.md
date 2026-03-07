@@ -63,11 +63,14 @@ msbrookesj.com/
 │
 ├── tests/
 │   ├── a11y.spec.js                # Playwright + axe-core accessibility tests (WCAG 2.1 AA)
-│   └── mobile-table.spec.js        # Playwright responsive-layout tests: no horizontal overflow on any page (mobile + desktop), table-responsive wrappers, column visibility, row-expand detail rows
+│   ├── mobile-table.spec.js        # Playwright responsive-layout tests: no horizontal overflow on any page (mobile + desktop), table-responsive wrappers, column visibility, row-expand detail rows
+│   └── screenshots.spec.js         # Playwright full-page screenshots of every page at desktop + mobile viewports
 │
 ├── .github/
 │   └── workflows/
-│       └── test.yml                # CI: HTML validation, link check, a11y, Lighthouse
+│       ├── test.yml                # CI: HTML validation, link check, a11y, Lighthouse
+│       ├── screenshots.yml         # CI: full-page screenshots — artifacts + per-PR branch
+│       └── screenshots-cleanup.yml # CI: deletes screenshots/pr-N branch when PR closes
 │
 ├── .claude/
 │   └── settings.json               # Project-shared Claude Code permissions
@@ -115,7 +118,7 @@ When editing or adding a page, match this structure exactly. Do not introduce ne
 
 ## CSS Conventions
 
-- `website/css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7), `p a, li a { text-decoration: underline }` for link distinguishability (WCAG 1.4.1) with `.navbar li a, footer a { text-decoration: none }` to exclude nav/footer links, a `.jumbotron a` color override for contrast, and a `@media (max-width: 767.98px)` rule hiding the Instructor column (`:nth-child(4)`) in the academic course history tables.
+- `website/css/theme.css` — The only place for custom styles. Contains footer flexbox layout, social icon `:hover` color rules, `.page-image` for centered section images, `.section-card` for centered index cards, a `:focus-visible` outline rule for keyboard accessibility (WCAG 2.4.7), `p a, li a { text-decoration: underline }` for link distinguishability (WCAG 1.4.1) with `.navbar li a, footer a { text-decoration: none }` to exclude nav/footer links, a `.jumbotron a` color override for contrast, a `@media (max-width: 767.98px)` rule hiding the Instructor (`:nth-child(4)`) and Academic Period (`:nth-child(5)`) columns in the academic course history tables, a `.table-hover` rule keeping the hover highlight on rows while their detail row is open, and a `vertical-align: middle` rule ensuring consistent cell alignment across all academic tables.
 - **No inline styles** beyond what Bootstrap already uses.
 - **Do not** add `<style>` blocks inside HTML files; put custom CSS in `theme.css`.
 - Class naming follows Bootstrap conventions (`row`, `col-md-*`, `btn`, etc.).
@@ -138,12 +141,14 @@ Every `<table>` in the site must be mobile-friendly. A table that overflows its 
    <td class="td-middle d-none d-md-table-cell">Las Vegas, NV</td>
    ```
 
-3. **When there are too many cells to mark individually** (e.g. a multi-row course history table), use a CSS `nth-child` rule scoped to the table's containing `id` in `theme.css` instead. Example — academic course tables hide column 4 (Instructor):
+3. **When there are too many cells to mark individually** (e.g. a multi-row course history table), use a CSS `nth-child` rule scoped to the table's containing `id` in `theme.css` instead. Example — academic course tables hide columns 4 (Instructor) and 5 (Academic Period):
 
    ```css
    @media (max-width: 767.98px) {
      #ucsdClasses th:nth-child(4),
-     #ucsdClasses td:nth-child(4) { display: none; }
+     #ucsdClasses td:nth-child(4),
+     #ucsdClasses th:nth-child(5),
+     #ucsdClasses td:nth-child(5) { display: none; }
    }
    ```
 
@@ -151,21 +156,22 @@ Every `<table>` in the site must be mobile-friendly. A table that overflows its 
 
 | Page | Table | Mobile strategy |
 |------|-------|----------------|
-| `athlete.html` | Competition gallery | `d-none d-md-table-cell` on Level and Location columns |
-| `academic.html` | 4 × course history | CSS `nth-child(4)` in `theme.css` hides Instructor column |
+| `athlete.html` | Competition gallery | `d-none d-md-table-cell` on Level and Location columns; 2023–24 row carries `data-bs-gallery="gallery2024"` so tapping on mobile auto-expands the photo carousel |
+| `academic.html` | 4 × course history | CSS `nth-child(4)` and `nth-child(5)` in `theme.css` hide Instructor and Academic Period columns; Academic Period appears in the row-expand detail row |
 | `license.html` | Dependencies | `table-responsive` only (4 short columns fit without hiding) |
 
 **Mobile row-expand (detail rows)** — `website/js/mobile-table-expand.js` is loaded on pages with tables. On mobile (< 768 px) it makes every `<tbody>` row tappable: tapping inserts a `<tr class="table-row-detail">` directly below the row, containing one `<div>` per hidden column formatted as `**Label:** value`. Key implementation notes:
 
 - Each hidden field is wrapped in its own `<div>` so fields appear on separate lines (not dot-joined on one line).
-- Cell values are read via `innerHTML` (not `textContent`) so links and Bootstrap collapse triggers inside hidden cells (e.g. a "View Photos" `<a data-bs-toggle="collapse">`) remain fully functional inside the detail row.
+- Cell values are read via `innerHTML` (not `textContent`) so links and other interactive elements inside hidden cells remain fully functional inside the detail row.
+- If a `<tr>` carries a `data-bs-gallery="<id>"` attribute, tapping to expand also shows the Bootstrap Collapse element with that id (and hides it again on collapse). The `.row-gallery.collapse` CSS class forces that element always visible on desktop via `theme.css`.
 - Tapping the expanded row a second time removes the detail row.
-- Resizing to desktop width (≥ 768 px) auto-collapses all open detail rows.
+- Resizing to desktop width (≥ 768 px) auto-collapses all open detail rows and their associated galleries.
 - Clicks on `<a>` or `<button>` elements inside a row pass through to their default handlers and do **not** trigger row expansion.
 
 **Regression guards** — two layers prevent regressions:
 - `tests/perf-hints.sh` — static grep checks that `table-responsive` wrappers and column-hiding patterns are present in each affected file.
-- `tests/mobile-table.spec.js` — Playwright tests that verify no horizontal overflow on **every** page at both mobile (375 px) and desktop (1024 px) viewports, plus per-page column-visibility assertions, and row-expand behaviour (tap to expand, per-field `<div>` lines, link preservation, tap to collapse, desktop no-expand guard).
+- `tests/mobile-table.spec.js` — Playwright tests that verify no horizontal overflow on **every** page at both mobile (375 px) and desktop (1024 px) viewports, plus per-page column-visibility assertions, and row-expand behaviour (tap to expand, per-field `<div>` lines, gallery auto-expand, tap to collapse, desktop no-expand guard).
 
 ---
 
@@ -301,6 +307,7 @@ Key flags:
 | `.lighthouserc.json` | A page is added or removed (add/remove its URL from the `urls` list) |
 | `tests/perf-hints.sh` | A page is added or removed (add/remove it from the `ALL_PAGES` array); a table is added or removed (add/remove its `table-responsive` and column-hiding checks) |
 | `tests/mobile-table.spec.js` | A page is added or removed (add/remove it from the `ALL_PAGES` array at the top of the file); a table is added or removed (add/remove its describe block) |
+| `tests/screenshots.spec.js` | A page is added or removed (add/remove it from `ALL_PAGES`); a page gains or loses collapse sections (add/remove it from `PAGES_WITH_DISCLOSURES`) |
 | `website/license.html` | A third-party image is added or removed |
 
 ---
@@ -345,13 +352,16 @@ Requires Node.js 20+ and Python 3 (Python is used to serve the site locally duri
 | `npm run test:a11y` | Playwright + axe-core | WCAG 2.1 AA violations on all pages (`a11y.spec.js`) **and** responsive layout — no horizontal overflow on every page at mobile + desktop, table-responsive wrappers, column visibility at each breakpoint, row-expand detail rows (`mobile-table.spec.js`) |
 | `npm run test:lighthouse` | Lighthouse CI | Performance, accessibility, best practices, SEO scores |
 | `npm run test:perf-hints` | bash | Mobile PageSpeed regressions: Bootstrap `defer`, FA webfont preloads, FA CSS async loading, `loading=lazy` on below-fold images, no `fetchpriority=high` on sub-page images, `table-responsive` wrappers and column-hiding rules on all table pages |
+| `npm run screenshots` | Playwright | Full-page screenshots of every page at desktop (1280×720) and mobile (iPhone 12) viewports; saved to `screenshots/` |
 | `lychee --config .lychee.toml website/*.html` | lychee | Broken internal and external links |
 
-Lychee requires a separate binary install (see [lychee releases](https://github.com/lycheeverse/lychee/releases)); the other four run via `npm`.
+Lychee requires a separate binary install (see [lychee releases](https://github.com/lycheeverse/lychee/releases)); the other five run via `npm`.
 
 ### CI
 
-GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on every push and pull request. Accessibility score below 0.9 in Lighthouse fails the build; other Lighthouse scores are warnings.
+GitHub Actions (`.github/workflows/test.yml`) runs all four test jobs in parallel on every push and pull request. Accessibility score below 0.9 in Lighthouse fails the build; other Lighthouse scores are warnings.
+
+A separate workflow (`.github/workflows/screenshots.yml`) captures full-page screenshots of every page at desktop and mobile viewports on every push and pull request. Screenshots are uploaded as a `page-screenshots` artifact (90-day retention). For pull requests the workflow also pushes the screenshots to a dedicated `screenshots/pr-<N>` branch and appends a link to the PR description (replacing it on subsequent pushes). A companion workflow (`.github/workflows/screenshots-cleanup.yml`) deletes the `screenshots/pr-<N>` branch automatically when the PR is closed or merged. Non-PR pushes continue to update the shared `screenshots` branch.
 
 ### Configuration files
 
@@ -374,6 +384,7 @@ GitHub Actions (`.github/workflows/test.yml`) runs all four jobs in parallel on 
 7. Add the new page's URL to `sitemap.xml`.
 8. Add the new page to `ALL_PAGES` in `tests/perf-hints.sh`.
 9. Add the new page to `ALL_PAGES` in `tests/mobile-table.spec.js` (the overflow loop covers it automatically once it's in the list).
+10. Add the new page to `ALL_PAGES` in `tests/screenshots.spec.js`. If the page has Bootstrap collapse sections, also add it to `PAGES_WITH_DISCLOSURES`.
 
 Note: the JSON-LD `Person` block lives only on `index.html` and `about.html` — do not copy it to content subpages.
 
