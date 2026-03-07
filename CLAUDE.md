@@ -63,7 +63,7 @@ msbrookesj.com/
 │
 ├── tests/
 │   ├── a11y.spec.js                # Playwright + axe-core accessibility tests (WCAG 2.1 AA)
-│   └── mobile-table.spec.js        # Playwright responsive-layout tests: no horizontal overflow on any page (mobile + desktop), table-responsive wrappers, column visibility
+│   └── mobile-table.spec.js        # Playwright responsive-layout tests: no horizontal overflow on any page (mobile + desktop), table-responsive wrappers, column visibility, row-expand detail rows
 │
 ├── .github/
 │   └── workflows/
@@ -155,9 +155,17 @@ Every `<table>` in the site must be mobile-friendly. A table that overflows its 
 | `academic.html` | 4 × course history | CSS `nth-child(4)` in `theme.css` hides Instructor column |
 | `license.html` | Dependencies | `table-responsive` only (4 short columns fit without hiding) |
 
+**Mobile row-expand (detail rows)** — `website/js/mobile-table-expand.js` is loaded on pages with tables. On mobile (< 768 px) it makes every `<tbody>` row tappable: tapping inserts a `<tr class="table-row-detail">` directly below the row, containing one `<div>` per hidden column formatted as `**Label:** value`. Key implementation notes:
+
+- Each hidden field is wrapped in its own `<div>` so fields appear on separate lines (not dot-joined on one line).
+- Cell values are read via `innerHTML` (not `textContent`) so links and Bootstrap collapse triggers inside hidden cells (e.g. a "View Photos" `<a data-bs-toggle="collapse">`) remain fully functional inside the detail row.
+- Tapping the expanded row a second time removes the detail row.
+- Resizing to desktop width (≥ 768 px) auto-collapses all open detail rows.
+- Clicks on `<a>` or `<button>` elements inside a row pass through to their default handlers and do **not** trigger row expansion.
+
 **Regression guards** — two layers prevent regressions:
 - `tests/perf-hints.sh` — static grep checks that `table-responsive` wrappers and column-hiding patterns are present in each affected file.
-- `tests/mobile-table.spec.js` — Playwright tests that verify no horizontal overflow on **every** page at both mobile (375 px) and desktop (1024 px) viewports, plus per-page column-visibility assertions.
+- `tests/mobile-table.spec.js` — Playwright tests that verify no horizontal overflow on **every** page at both mobile (375 px) and desktop (1024 px) viewports, plus per-page column-visibility assertions, and row-expand behaviour (tap to expand, per-field `<div>` lines, link preservation, tap to collapse, desktop no-expand guard).
 
 ---
 
@@ -334,7 +342,7 @@ Requires Node.js 20+ and Python 3 (Python is used to serve the site locally duri
 | Command | Tool | What it checks |
 |---------|------|----------------|
 | `npm run test:html` | html-validate | Malformed markup, missing `alt` text, invalid attributes |
-| `npm run test:a11y` | Playwright + axe-core | WCAG 2.1 AA violations on all pages (`a11y.spec.js`) **and** responsive layout — no horizontal overflow on every page at mobile + desktop, table-responsive wrappers, column visibility at each breakpoint (`mobile-table.spec.js`) |
+| `npm run test:a11y` | Playwright + axe-core | WCAG 2.1 AA violations on all pages (`a11y.spec.js`) **and** responsive layout — no horizontal overflow on every page at mobile + desktop, table-responsive wrappers, column visibility at each breakpoint, row-expand detail rows (`mobile-table.spec.js`) |
 | `npm run test:lighthouse` | Lighthouse CI | Performance, accessibility, best practices, SEO scores |
 | `npm run test:perf-hints` | bash | Mobile PageSpeed regressions: Bootstrap `defer`, FA webfont preloads, FA CSS async loading, `loading=lazy` on below-fold images, no `fetchpriority=high` on sub-page images, `table-responsive` wrappers and column-hiding rules on all table pages |
 | `lychee --config .lychee.toml website/*.html` | lychee | Broken internal and external links |
